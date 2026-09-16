@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "core": {
+    "homepage_properties": [
+      "type",
+      "current_stage",
+      "current_unit",
+      "current_position"
+    ],
+    "mainline_properties": [
+      "type",
+      "current_unit"
+    ]
+  },
+  "freeform": [
+    "15-自由笔记",
+    "25-资源区\\外部"
+  ],
+  "resources": {
+    "root": "25-资源区",
+    "snapshots": "25-资源区\\学习快照",
+    "external": "25-资源区\\外部"
+  },
+  "paths": {
+    "required": [
+      "00-首页.md",
+      "10-术语规范.md",
+      "15-自由笔记",
+      "20-学习主线",
+      "25-资源区",
+      "30-学习日志\\每周",
+      "30-学习日志\\学习回顾",
+      "40-原子知识",
+      "50-主题地图",
+      "60-复习",
+      "70-复习队列.md",
+      "90-模板",
+      "97-临时",
+      "99-附件"
+    ],
+    "forbidden_legacy": [
+      "04-项目与来源",
+      "05-里程碑",
+      "06-问题看板"
+    ],
+    "markdown_files": [
+      "00-首页.md",
+      "10-术语规范.md",
+      "70-复习队列.md"
+    ],
+    "markdown_roots": [
+      "20-学习主线",
+      "30-学习日志",
+      "40-原子知识",
+      "50-主题地图",
+      "60-复习",
+      "90-模板",
+      "99-附件"
+    ],
+    "note_roots": [
+      "20-学习主线",
+      "30-学习日志",
+      "40-原子知识",
+      "50-主题地图",
+      "60-复习",
+      "90-模板"
+    ]
+  },
+  "files": {
+    "00-首页.md": {
+      "properties": [
+        "type",
+        "current_stage",
+        "current_unit",
+        "current_position",
+        "learning_mainline",
+        "terminology_standard",
+        "current_week",
+        "latest_review"
+      ],
+      "headings": [
+        "## 当前学习主线",
+        "## 最近周记录",
+        "## 最近学习",
+        "## 主题地图",
+        "## 复习",
+        "## 术语规范",
+        "## 使用原则"
+      ]
+    },
+    "20-学习主线": {
+      "properties": [
+        "type",
+        "updated",
+        "current_stage",
+        "current_unit",
+        "current_position"
+      ],
+      "headings": [
+        "## 使用方式",
+        "## 权威来源",
+        "## 单元结构",
+        "## 当前定位",
+        "## 调整主线的条件"
+      ]
+    },
+    "70-复习队列.md": {
+      "headings": [
+        "## 使用规则",
+        "## 活跃队列",
+        "## 待激活题库",
+        "## 已退出活跃队列",
+        "## 最近更新依据"
+      ]
+    }
+  },
+  "weekly": {
+    "properties": [
+      "type",
+      "week",
+      "start",
+      "end",
+      "study_days",
+      "total_minutes",
+      "stage",
+      "stage_directions",
+      "status"
+    ],
+    "headings": [
+      "## 阶段方向",
+      "## 任务流转",
+      "## 实际学习记录",
+      "## 已收敛知识",
+      "## 复习证据",
+      "## 能力证据",
+      "## 整理结论",
+      "## 前进方向"
+    ],
+    "status_enum": [
+      "进行中",
+      "已结束"
+    ]
+  },
+  "note_types": [
+    "home",
+    "terminology-standard",
+    "learning-mainline",
+    "weekly-learning-review",
+    "学习回顾",
+    "原子知识点",
+    "复习题",
+    "topic-map",
+    "review-queue",
+    "learning-snapshot-guide",
+    "learning-snapshot",
+    "attachment-index",
+    "job-requirement-analysis",
+    "template"
+  ]
+}
