@@ -7,36 +7,41 @@ description: Execute optional explicit practice, review, or assessment for a sel
 
 Run practice and assessment only after the user explicitly chooses this mode.
 
-## Load the contract
+## When to use
 
-Bind the Vault first: resolve it per `references/tech-vault-schema.md`; if it is missing or uninitialized, ask the user to initialize it with `direct-tech-learning` or `study-tech-learning` before reading.
+- Explicit `开始练习`、`给我练习`、`开始复习`、`复习这个任务`、`批量复习`、`验收`、`测试我`、`练习加验收`.
+- Never a default task step, a completion gate, or a calendar-triggered action; ordinary study never enters this mode.
 
-Read `references/tech-vault-schema.md`, `references/review-session-protocol.md`, `references/review-policy.md`, `10-术语规范.md`, `20-学习主线/`, relevant atomic notes and review banks, `70-复习队列.md`, and the selected task's learning snapshot when present. Never write to the Vault.
+## Inputs
 
-## Resolve the target
+- Vault binding: explicit path or the tracked pointer; if it is missing or uninitialized, ask the user to initialize it with `direct-tech-learning` or `study-tech-learning`. This mode never writes to the Vault.
+- Target priority: explicit unit/topic -> explicitly selected review bank -> active queue.
+- For an `atomic-mirror` bank start from its declared `primary_atomic`; for an extra bank use its declared `review_kind` plus `related_atomics`/`task_units`.
+- An atomic note without a mirror bank may still be tested; `record-tech-learning` creates the mirror when the result is recorded.
+- For a task-package review, the snapshot's covered-slice table and structured mechanisms show what was taught; snapshot content is coverage, not ability, readiness, or evidence.
 
-Use the user's explicit unit/topic first, then an explicitly selected review bank, then the active queue. For an atomic-mirror bank, begin with its declared `primary_atomic`; for an extra bank, use its declared `review_kind` plus `related_atomics` or `task_units`. Queue dates are priorities, not automatic triggers or proof.
+## Minimal reads
 
-State the tested boundary and observable completion conditions. Do not change the task route. Missing review evidence never blocks ordinary task progress.
+- Read `references/review-session-protocol.md` and the selected target: relevant atomic notes, the selected review bank, or the snapshot slice.
+- Read `references/review-storage-contract.md` when the tested boundary needs the bank or queue contract; it is an extract of the shared Vault contract.
+- Read `references/review-policy.md` and `70-复习队列.md` only when selecting from the queue or reasoning about queue effects.
+- Read terminology rows for the tested concepts when naming matters.
+- Extend only when: the target is ambiguous, or the user explicitly asks for a whole-topic sweep.
 
-For a task-package review, use the snapshot's covered-slice table, structured mechanisms, online-interaction statuses, and unresolved issues to avoid testing material that was never taught. Snapshot content establishes generated study coverage only; it is not an attempt, result, readiness claim, or completion evidence.
+## Allowed writes
 
-## Build practice and assessment
+- None to the Vault: never update review records, queue, weekly facts, mainline, position, evidence, or terminology.
+- Generated questions, expected answers, tests, and dates are not evidence and stay out of the Vault.
 
-Follow `review-session-protocol.md`:
+## Handoff
 
-1. group two to four tightly related checks when coherent;
-2. prefer causal prediction, fault localization, changed-context transfer, and later retention;
-3. leave critical answers, implementation, correction, and transfer decisions to the learner;
-4. provide executable assertions or exact observable checks;
-5. request one consolidated result report.
+- Actual attempts and results -> `record-tech-learning` (it alone records and may update the derived queue).
+- Substantial new input -> `study-tech-learning`; focused blockers -> `answer-tech-learning`; persistent route changes -> `direct-tech-learning`.
+- Do not expand review into a new course block.
 
-Do not fill learner-owned work before an attempt unless the user asks. Give progressive hints when blocked. After an attempt, provide only the corrective explanation needed to interpret the result.
+## Done check
 
-## Evidence boundary
-
-Generated questions, expected answers, tests, and dates are not evidence. Never update review records, the queue, weekly facts, mainline, position, or terminology. Hand actual attempts and results to `record-tech-learning`; it alone records the result and may update derived queue state.
-
-## Mode boundary
-
-Do not expand review into a new course block. Hand substantial new input to `study-tech-learning`, focused blockers to `answer-tech-learning`, and persistent task-route changes to `direct-tech-learning`.
+- State the tested boundary and observable completion conditions; group two to four tightly related checks when coherent.
+- Prefer causal prediction, fault localization, changed-context transfer, and later retention; leave critical answers, implementation/correction, and transfer decisions to the learner.
+- Provide executable assertions or exact observable checks, and request one consolidated result report; give progressive hints only when blocked.
+- Missing review evidence never blocks ordinary task progress.

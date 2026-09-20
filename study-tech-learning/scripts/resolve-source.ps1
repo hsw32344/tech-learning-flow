@@ -48,7 +48,7 @@ if ($UnitId -cnotmatch ('^' + $UnitIdPattern + '$')) {
     throw "Invalid task-package unit ID: $UnitId"
 }
 
-$mainlineText = Get-MainlineText -VaultRoot $vaultRootResolved
+$mainlineText = Get-TaskRegistryText -VaultRoot $vaultRootResolved
 
 $primaryMatches = @([regex]::Matches($mainlineText, $PrimaryDeclarationPattern) | Where-Object { $_.Groups['unit'].Value -ceq $UnitId })
 if ($primaryMatches.Count -ne 1) {
@@ -124,10 +124,12 @@ if (Test-Path -LiteralPath $snapshotPath -PathType Leaf) {
     }
     $snapshotUnitMatch = [regex]::Match($snapshotContent, '(?m)^unit:\s*(?<value>.+?)\s*$')
     $snapshotPrimaryMatch = [regex]::Match($snapshotContent, '(?m)^primary_source:\s*(?<value>.+?)\s*$')
+    $snapshotSourceRoleMatch = [regex]::Match($snapshotContent, '(?m)^source_role:\s*(?<value>.+?)\s*$')
     $snapshotStatusMatch = [regex]::Match($snapshotContent, '(?m)^source_packet_status:\s*(?<value>.+?)\s*$')
     $snapshotVerifiedAtMatch = [regex]::Match($snapshotContent, '(?m)^source_verified_at:\s*(?<value>.+?)\s*$')
     $snapshotUnit = if ($snapshotUnitMatch.Success) { $snapshotUnitMatch.Groups['value'].Value.Trim() } else { $null }
     $snapshotPrimary = if ($snapshotPrimaryMatch.Success) { $snapshotPrimaryMatch.Groups['value'].Value.Trim() } else { $null }
+    $snapshotSourceRole = if ($snapshotSourceRoleMatch.Success) { $snapshotSourceRoleMatch.Groups['value'].Value.Trim() } else { $null }
     $snapshotStatus = if ($snapshotStatusMatch.Success) { $snapshotStatusMatch.Groups['value'].Value.Trim() } else { $null }
     $snapshotVerifiedAt = if ($snapshotVerifiedAtMatch.Success) { $snapshotVerifiedAtMatch.Groups['value'].Value.Trim() } else { $null }
     $snapshotCache = [ordered]@{
@@ -138,7 +140,9 @@ if (Test-Path -LiteralPath $snapshotPath -PathType Leaf) {
         unit_matches           = ($snapshotUnit -ceq $UnitId)
         primary_source         = $snapshotPrimary
         primary_source_matches = ($snapshotPrimary -ceq $primaryCode)
-        status_eligible        = ($snapshotStatus -eq 'verified' -or ($snapshotStatus -eq 'agent-fallback' -and $primaryCode -eq 'AGENT-FALLBACK'))
+        source_role            = $snapshotSourceRole
+        source_role_matches    = ($snapshotSourceRole -ceq $primary.role)
+        status_eligible        = ($snapshotStatus -eq 'verified')
     }
 }
 

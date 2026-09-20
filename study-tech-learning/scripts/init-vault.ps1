@@ -14,7 +14,7 @@ $skillRoot = Split-Path -Parent $scriptDir
 $seedRoot = Join-Path $skillRoot 'assets\vault-seed'
 $manifestPath = Join-Path $seedRoot '.dirs.txt'
 $schemaPath = Join-Path $skillRoot 'assets\vault-schema.json'
-$validatorPath = Join-Path $scriptDir 'validate-vault.ps1'
+$validatorPath = Join-Path $scriptDir 'validate-ready.ps1'
 $stateDir = Join-Path $env:USERPROFILE '.agents\tech-learning-flow'
 $pointerPath = Join-Path $stateDir 'vault-path.txt'
 
@@ -25,7 +25,7 @@ if (-not (Test-Path -LiteralPath $schemaPath -PathType Leaf)) {
     throw "Bundled vault schema not found: $schemaPath"
 }
 if (-not (Test-Path -LiteralPath $validatorPath -PathType Leaf)) {
-    throw "Vault validator not found: $validatorPath"
+    throw "Vault readiness validator not found: $validatorPath"
 }
 
 if ([string]::IsNullOrWhiteSpace($VaultRoot) -and -not [string]::IsNullOrWhiteSpace($env:TECH_LEARNING_VAULT)) {

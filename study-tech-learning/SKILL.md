@@ -5,32 +5,42 @@ description: Teach or continue source-backed technical learning, or prepare a cu
 
 # Study technical learning
 
-## Load a bounded context
+Teach or continue source-backed learning; materialize only new or changed material.
 
-Bind the Vault first: resolve it from the tracked pointer `%USERPROFILE%\.agents\tech-learning-flow\vault-path.txt` or the user's explicit path; if it is missing or uninitialized, run `scripts/init-vault.ps1` to create the minimal valid skeleton.
+## When to use
 
-Read `references/study-session-protocol.md` once per conversation, reloading only if changed or no longer available. It owns teaching, content checks, and resume behavior. Do not preload the schema, terminology, complete mainline, source registry, logs, or whole cumulative snapshot.
+- `开始学习`、`继续学习`、`下一片`、`从这里接着学`、`准备学习快照`。
+- User choice (continue / skip / location) is sufficient to move the teaching position; never require FCC completion, a runnable submission, a closed-loop artifact, a quiz, or proof of understanding.
 
-Use `scripts/build-packet.py --vault <root>` with an explicit Python interpreter (prefer an existing venv; otherwise resolve and verify an installed interpreter). Pass `--unit`, `--slice`, or `--locator` when the user or visible conversation identifies them. The script invokes the packaged resolver and returns only selected task/source metadata, target slice, necessary blockers, and an independent teaching checkpoint. Add `--material-only` only for snapshot preparation. No installation is required; the runtime uses Python's standard library and PowerShell.
+## Inputs
 
-Resolve user's selection first, then the latest visible conversation, then saved teaching state. The homepage selects a task; the snapshot's next locator selects material acquisition only. Neither proves a teaching position. Honor explicit continue/skip/location choices without evidence requests. If only a location without cached content is known, acquire exactly that source. If no teaching location is recoverable, ask one short location question rather than infer it from material completion. User input alone is sufficient.
+- Vault binding: the tracked pointer `%USERPROFILE%\.agents\tech-learning-flow\vault-path.txt` or the user's explicit path; when missing, run `scripts/init-vault.ps1` to create the minimal valid skeleton.
+- Selection priority: explicit user selection -> latest visible conversation position -> saved teaching checkpoint -> explicit task-scoped stopping record. Never use the material cursor to choose a teaching position; if unresolved, ask one short location question.
+- For teaching or continuation run `scripts/build-study-context.py --vault <root>` with an explicit Python interpreter. For snapshot-only preparation run `scripts/build-source-context.py --vault <root>`. Pass `--unit`, `--slice`, or `--locator` when known. Only the teaching entry reads `.study-state`.
+- Context reuse: reuse a visible `study_context` or `material_context` when its unit, source, target, and version still match; `study -> load -> study` handoffs must not re-resolve the same task and source. A JSON context is not a Markdown source packet and carries no `verified`/`partial`/`blocked` verdict.
 
-## Select cache or source
+## Minimal reads
 
-Inspect only the returned target. `cache_candidate` means structural/task/source checks passed; apply the content rubric before treating it as a verified cache. A shallow but source-sufficient explanation needs causal repair, not automatic network refetch. Missing source content, disputed facts, version conflicts, or requests for current/verbatim wording require the smallest live fragment. Never infer provenance from field presence.
+- Read `references/study-session-protocol.md` once per conversation; reload only if it changed or is no longer available.
+- Inspect only the returned JSON context: target row/body, source fields, blockers, and, for `study_context` only, the runtime checkpoint.
+- Read `25-资源区/学习快照/学习快照使用说明.md` and `90-模板/学习快照模板.md` on demand, only when writing new or corrected material.
+- Read `99-附件/FCC学习操作范式.md` only for live FCC acquisition or unresolved FCC structure.
+- Extend only when: no eligible cache target exists, source facts are disputed, verbatim wording is required, or material must be written.
 
-For a cache hit, use the original source locator and verification date without fetching or rewriting. If no eligible target exists, use `load-tech-learning-source`. Read the FCC manual only for FCC live acquisition or unresolved FCC structure, not for a verified cached slice. Reuse any packet already visible and sufficient in this turn.
+## Allowed writes
 
-## Materialize only new or changed material
+- The bound cumulative snapshot, the `25-资源区/学习快照/.study-state` runtime sidecar, scratch draft/review files under `97-临时/`, and explicitly selected source files only.
+- Snapshot gate: for new or corrected material require a Markdown source packet with `status: verified`, run the content screen, preserve existing slices, then run `scripts/validate-snapshot.ps1`; only after it passes may the same request continue into teaching.
+- Never rewrite an unchanged cache; never alter homepage/mainline, terminology, logs, review queues, or learner evidence from study; never convert examples into required user deliverables.
 
-For new/corrected source-backed material, read `25-资源区/学习快照/学习快照使用说明.md` and `90-模板/学习快照模板.md` on demand. Require a verified source packet, perform the content check, preserve existing slices, write the cumulative snapshot, and run `scripts/validate-snapshot.ps1`. Do not rewrite an unchanged cache. Generated supplements must retain their labels and must not falsify the source verification date.
+## Handoff
 
-Snapshot-only requests stop after material handoff and never move teaching checkpoints. Requests including learning continue into teaching in this same turn.
+- Focused follow-up questions -> `answer-tech-learning` with the parent cursor preserved.
+- Explicit practice -> `review-tech-learning`; explicit activity recording -> `record-tech-learning`; route changes -> `direct-tech-learning`. No silent mode changes.
+- A pending why-question is resolved before advancing unless the user explicitly skips it.
 
-## Teach and check
+## Done check
 
-Follow the session protocol and use `scripts/check-draft.py` on the exact draft plus its bounded Agent content review. Fix only deficient mechanisms and rerun after changes. The checker validates structure and review coverage, not semantic truth; the Agent must actually perform the content review. Keep review details in temporary artifacts, not in the lesson or user activity logs.
-
-Persist lightweight resume state through `scripts/write-checkpoint.py` as specified by the protocol. Allowed writes are the bound cumulative snapshot, `25-资源区/学习快照/.study-state` runtime sidecar, scratch draft/review files under `97-临时/`, and explicitly selected source files. Do not alter homepage/mainline, terminology, logs, or review queues from study mode. Never convert examples into required user deliverables.
-
-Focused follow-up questions use `answer-tech-learning` without losing this teaching cursor. Explicit practice uses `review-tech-learning`; only explicit activity recording uses `record-tech-learning`. No silent mode changes.
+- The exact draft plus its bounded Agent content review pass `scripts/check-draft.py` before sending; fix only deficient mechanisms and rerun after changes.
+- Persist resume state with `scripts/write-checkpoint.py` using the `study_context.state_revision`; a position becomes usable only when the response is actually visible in the conversation.
+- Keep review details in temporary artifacts; report semantic checking as Agent judgment, never as machine proof.

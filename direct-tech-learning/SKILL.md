@@ -7,57 +7,38 @@ description: Maintain the source-backed technical-learning task route, current s
 
 Maintain the complete source-backed task route. Do not execute study or review.
 
-## Load the contract
+## When to use
 
-Bind the Vault first: resolve it per `references/tech-vault-schema.md`; if it is missing or uninitialized, run `scripts/init-vault.ps1` to create the minimal valid skeleton before proposing or writing.
+- `长期怎么学`、`学习主线`、`下一任务`、`当前任务`、`调整主线`、`进入阶段`、`切换阶段`、`跳过`、`并行`、`提前学习`、`今天做什么`、`这周推进什么`.
+- Select, reorder, or skip task packages after showing dependency costs; user choice is final and never vetoed by an unfinished day/week, review state, or missing assessment.
 
-Read `references/tech-vault-schema.md`, `references/curriculum-sources.md`, `10-术语规范.md`, `20-学习主线/`, and the homepage before proposing or writing. Read recent weekly and daily logs only when factual history affects task selection. Read `70-复习队列.md` only for an explicit practice, review, or assessment request.
+## Inputs
 
-When the selected primary source code starts with `FCC-`, also read `99-附件/FCC学习操作范式.md`. Treat it as the operational authority for source resolution and study routing, not as route or capability evidence. Read the task snapshot only when its explicit stopping or next locator affects the handoff; never advance the route from snapshot content.
+- Vault binding: explicit path or the tracked pointer; run `scripts/init-vault.ps1` when missing or uninitialized.
+- The requested change: classify it, then show retained / moved / skipped / added units and dependency costs before writing.
+- Current context: the active unit row, its prerequisites, the stage file, the homepage mirror, and any confirmed job-requirement handoff note or exact source boundary.
 
-## Route authority
+## Minimal reads
 
-1. Use the confirmed mainline for order, user-supplied job requirements for interview priority when explicitly adopted, and current registered official sources for technical behavior. Select each task package's one primary learning source by the completion-path order in `curriculum-sources.md`: user selection, public online tutorial, official teaching documentation, confirmed physical book, then explicitly marked Agent fallback.
-2. Select stable mainline unit IDs; do not invent or silently omit units.
-3. Preserve each unit's prerequisites, causal model, coverage/output, and learning-source declaration: exactly one machine-parseable `primary_source` line with source identity/type and exact locator, and at most one bounded labelled `gap_source` line, in the format owned by `curriculum-sources.md`.
-4. Separate historical facts, observed output, review state, and recommendations.
-5. When stage, unit, position, or stage directions change, update `20-学习主线/` (its `00-总览.md`, the relevant `10-阶段/` file, and `20-来源声明.md`) and the corresponding `00-首页.md` route mirrors together; preserve homepage `current_week` and `latest_review`.
+- Read the sections of `references/tech-vault-schema.md` needed for the write (mainline, source declarations, homepage mirrors); it is never a mandatory full preload.
+- Read `references/curriculum-sources.md` when selecting or changing a task package's primary source.
+- Read `10-术语规范.md` when stage or mainline terminology rows change; read `99-附件/FCC学习操作范式.md` for `FCC-*` sources.
+- Read the full mainline only when reordering stages/units or adding packages; recent weekly/daily logs only when factual history affects task selection; `70-复习队列.md` only for an explicit practice/review request.
 
-The user may change the route at any time. Classify the change, show retained/moved/skipped/added units and dependency costs, then follow the user's explicit choice. Never use an unfinished week or day, review state, missing assessment, or incomplete mastery as a veto.
+## Allowed writes
 
-When `analyze-job-requirements` hands off a confirmed proposal, read the saved source note or exact source boundary, preserve its fact/inference/recommendation separation, and apply only the explicitly approved retained, moved, reprioritized, added, skipped, and job-specific treatment. A job requirement never proves capability or completion.
+- `20-学习主线/` (its `00-总览.md`, `20-任务包注册表.md`, the relevant stage file, and `资料来源注册表.md` when material identities change), the matching `00-首页.md` route mirrors, and stage/mainline-node terminology rows.
+- Exactly one machine-parseable `primary_source` line with a reproducible anchor per unit, plus at most one bounded `gap_source`; never assemble a hidden Agent-authored curriculum from fragments.
+- Preserve weekly/daily facts and homepage `current_week`/`latest_review`; never write review results, learner activity, or generated teaching into the route.
 
-## Select tasks
+## Handoff
 
-Treat `今天做什么`, `今天安排什么`, `这周推进什么`, and `下一任务` as task-selection requests:
+- Execution -> `study-tech-learning`; explicit practice/review/assessment -> `review-tech-learning`; facts -> `record-tech-learning`; focused explanations -> `answer-tech-learning`; raw HR/JD -> `analyze-job-requirements`.
+- For `FCC-*` sources, hand structure-first block/challenge resolution to `load-tech-learning-source` under the Vault FCC manual.
 
-- report the current task package and the smallest useful output boundary;
-- select the next source-backed task from the current position when needed;
-- do not start teaching, generate exercises, or switch to review;
-- do not generate dates, daily quotas, weekly quotas, or completion promises;
-- hand execution to `study-tech-learning` or, only after an explicit choice, `review-tech-learning`.
+## Done check
 
-## Select learning material
-
-Select or change task material only as a route decision; do not teach it here. Give every task package exactly one primary learning source and one reproducible section/chapter anchor. Use a second source only as one named gap source. If two or more tutorials would be needed, split the task package or replace its primary source. Never assemble a hidden Agent-authored curriculum from source fragments.
-
-For `FCC-*`, preserve the registered course as the primary route and hand structure-first block/challenge resolution to `load-tech-learning-source` under the Vault FCC manual. Do not replace an inaccessible online shell with guessed course content.
-
-Use Agent fallback only when a higher-ranked source is unavailable or unsuitable. Record why, its bounded teaching scope, and what it does not cover. Technical conflicts are always resolved by current version-matched official documentation, even when a tutorial is the primary learning source.
-
-## Task-first progression
-
-1. Use mainline units as task packages; do not create a parallel task database.
-2. Prefer breadth and framework coverage while preserving core causal understanding. An example or artifact is optional, never a prerequisite for moving on.
-3. Allow one task to span multiple days and one day to contain multiple tasks. ISO week and date boundaries never control progress.
-4. Fill prerequisite gaps only when they cause a concrete task blocker. Do not front-load easy or complete prerequisite courses for completeness.
-5. Allow aggressive skip, parallelization, or early entry when the user chooses it; state dependency cost without slowing the route automatically.
-6. User choice is sufficient to continue or skip; do not demand FCC completion, runnable submissions, or a closed-loop artifact. An ordinary within-task teaching cursor belongs to study runtime state, not a persistent route change.
-7. After confirmation, update only the mainline, terminology rows when needed, and matching homepage route mirrors.
-
-Preserve all weekly/daily facts and homepage factual navigation links. Move current position from a recorded task handoff or an explicit user override, never from generated teaching, a calendar boundary, or an assessment suggestion.
-
-## Boundaries
-
-Never execute a lesson, create exercises, ingest learning, update review results, or answer a standalone concept. Hand study to `study-tech-learning`, explicit practice/review/assessment to `review-tech-learning`, facts to `record-tech-learning`, and focused explanations to `answer-tech-learning`. After every route write, run `scripts/validate-route.ps1`; when stage or mainline terminology rows change, also run `scripts/validate-terminology.ps1`.
-Hand raw HR/JD analysis and unconfirmed job-driven route proposals to `analyze-job-requirements`.
+- After every route write run `scripts/validate-route.ps1`; when stage or terminology rows change also run `scripts/validate-terminology.ps1`, or cover both with one `scripts/validate-change.ps1 -Kinds route,terminology` batch.
+- `scripts/validate-vault.ps1 -Strict` is the explicit whole-Vault maintenance audit; routine route writes use only their registered action impact surface.
+- Unit IDs are stable and complete; content / causal model / output and source declarations stay consistent; homepage mirrors match the mainline exactly.
+- Technical conflicts are resolved by current version-matched official documentation; Agent fallback is used only when a higher-ranked source is unavailable, with its reason and bounded scope recorded.

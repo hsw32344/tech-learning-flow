@@ -92,9 +92,9 @@ def slice_body(text, slice_id):
 
 
 def ps(script, *args):
-    executable = shutil.which('pwsh') or shutil.which('powershell.exe')
+    executable = shutil.which('pwsh')
     if not executable:
-        raise ValueError('PowerShell is required for the packaged vault tools')
+        raise ValueError('PowerShell 7 (pwsh) is required for the packaged vault tools')
     # Packaged scripts are UTF-8 with BOM, so `-File` preserves $PSScriptRoot and
     # the shared contract dot-source; no source re-decoding workaround is needed.
     command = [executable, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(script), *map(str, args)]
@@ -117,20 +117,6 @@ def resolve_source(vault, unit=None):
     if unit:
         args += ['-UnitId', unit]
     return ps(script, *args)
-
-
-def state_dir(vault):
-    return Path(vault).resolve()/'25-资源区'/'学习快照'/'.study-state'
-
-
-def state_path(vault, unit):
-    if not UNIT.fullmatch(unit):
-        raise ValueError('Invalid unit')
-    base = Path(vault).resolve()/'25-资源区'/'学习快照'
-    candidate = state_dir(vault)/f'{unit}.json'
-    if not candidate.resolve().is_relative_to(base.resolve()):
-        raise ValueError('State path escapes snapshot directory')
-    return candidate
 
 
 def emit(result):

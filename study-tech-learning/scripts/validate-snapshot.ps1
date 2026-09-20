@@ -16,6 +16,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 
 if (-not $Snapshot) {
     Write-Output 'Usage: validate-snapshot.ps1 -Snapshot "<任务包ID> 学习快照.md path>"'
@@ -91,6 +92,7 @@ else {
     $fmType = Get-FmScalar $fmBody 'type'
     $fmUnit = Get-FmScalar $fmBody 'unit'
     $fmPrimary = Get-FmScalar $fmBody 'primary_source'
+    $fmSourceRole = Get-FmScalar $fmBody 'source_role'
     $fmPacketStatus = Get-FmScalar $fmBody 'source_packet_status'
     $fmVerifiedAt = Get-FmScalar $fmBody 'source_verified_at'
     $fmContract = Get-FmScalar $fmBody 'contract'
@@ -108,24 +110,28 @@ else {
     if (-not $fmPrimary) {
         $issues += 'frontmatter missing primary_source'
     }
-    $allowedPacketStatuses = @('verified', 'agent-fallback', 'partial', 'blocked')
+    $allowedSourceRoles = @('teaching-open', 'technical-authority', 'physical-book', 'agent-fallback')
+    if ($fmSourceRole -notin $allowedSourceRoles) {
+        $issues += "source_role must be one of: $($allowedSourceRoles -join ' / ') (got '$fmSourceRole')"
+    }
+    $allowedPacketStatuses = @('verified', 'partial', 'blocked')
     if ($fmPacketStatus -notin $allowedPacketStatuses) {
         $issues += "source_packet_status must be one of: $($allowedPacketStatuses -join ' / ') (got '$fmPacketStatus')"
     }
-    elseif ($fmPacketStatus -eq 'verified' -and $fmVerifiedAt -notmatch '^\d{4}-\d{2}-\d{2}$') {
-        $issues += "source_verified_at must be YYYY-MM-DD for verified packets (got '$fmVerifiedAt')"
+    elseif ($fmPacketStatus -eq 'verified' -and $fmSourceRole -eq 'agent-fallback' -and $fmVerifiedAt -ne '无/不适用') {
+        $issues += "source_verified_at must be 无/不适用 for agent-fallback material (got '$fmVerifiedAt')"
     }
-    elseif ($fmPacketStatus -eq 'agent-fallback' -and $fmVerifiedAt -ne '无/不适用') {
-        $issues += "source_verified_at must be 无/不适用 for agent-fallback packets (got '$fmVerifiedAt')"
+    elseif ($fmPacketStatus -eq 'verified' -and $fmSourceRole -ne 'agent-fallback' -and $fmVerifiedAt -notmatch '^\d{4}-\d{2}-\d{2}$') {
+        $issues += "source_verified_at must be YYYY-MM-DD for verified Markdown source packets (got '$fmVerifiedAt')"
     }
     elseif ($fmPacketStatus -in @('partial', 'blocked') -and $fmVerifiedAt -notmatch '^(\d{4}-\d{2}-\d{2}|未知/待核验)$') {
-        $issues += "source_verified_at must be YYYY-MM-DD or 未知/待核验 for partial/blocked packets (got '$fmVerifiedAt')"
+        $issues += "source_verified_at must be YYYY-MM-DD or 未知/待核验 for partial/blocked Markdown source packets (got '$fmVerifiedAt')"
     }
-    if ($fmPrimary -eq 'AGENT-FALLBACK' -and $fmPacketStatus -ne 'agent-fallback') {
-        $issues += "AGENT-FALLBACK primary_source requires source_packet_status agent-fallback (got '$fmPacketStatus')"
+    if ($fmPrimary -eq 'AGENT-FALLBACK' -and $fmSourceRole -ne 'agent-fallback') {
+        $issues += "AGENT-FALLBACK primary_source requires source_role agent-fallback (got '$fmSourceRole')"
     }
-    elseif ($fmPrimary -ne 'AGENT-FALLBACK' -and $fmPacketStatus -eq 'agent-fallback') {
-        $issues += "source_packet_status agent-fallback requires primary_source AGENT-FALLBACK (got '$fmPrimary')"
+    elseif ($fmPrimary -ne 'AGENT-FALLBACK' -and $fmSourceRole -eq 'agent-fallback') {
+        $issues += "source_role agent-fallback requires primary_source AGENT-FALLBACK (got '$fmPrimary')"
     }
     if (-not $fmUpdated) {
         $issues += 'frontmatter missing updated'

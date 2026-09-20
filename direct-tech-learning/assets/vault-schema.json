@@ -1,10 +1,6 @@
 {
   "schema_version": 1,
   "core": {
-    "required": [
-      "00-首页.md",
-      "20-学习主线"
-    ],
     "homepage_properties": [
       "type",
       "current_stage",

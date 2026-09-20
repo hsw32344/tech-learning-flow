@@ -12,7 +12,8 @@ from pathlib import Path
 import re
 import tempfile
 
-from vault_common import SLICE, UNIT, load, resolve_vault, run, state_path, utf8_stdout
+from teaching_state import state_path
+from vault_common import SLICE, UNIT, load, resolve_vault, run, utf8_stdout
 
 
 def checkpoint(args):

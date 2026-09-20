@@ -1,10 +1,33 @@
 {
   "schema_version": 1,
+  "core": {
+    "homepage_properties": [
+      "type",
+      "current_stage",
+      "current_unit",
+      "current_position"
+    ],
+    "mainline_properties": [
+      "type",
+      "current_unit"
+    ]
+  },
+  "freeform": [
+    "15-自由笔记",
+    "25-资源区\\外部"
+  ],
+  "resources": {
+    "root": "25-资源区",
+    "snapshots": "25-资源区\\学习快照",
+    "external": "25-资源区\\外部"
+  },
   "paths": {
     "required": [
       "00-首页.md",
       "10-术语规范.md",
+      "15-自由笔记",
       "20-学习主线",
+      "25-资源区",
       "30-学习日志\\每周",
       "30-学习日志\\学习回顾",
       "40-原子知识",
@@ -12,6 +35,7 @@
       "60-复习",
       "70-复习队列.md",
       "90-模板",
+      "97-临时",
       "99-附件"
     ],
     "forbidden_legacy": [

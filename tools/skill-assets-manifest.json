@@ -1,0 +1,491 @@
+{
+  "version": 2,
+  "description": "Canonical shared assets live under shared/. tools/sync-skill-assets.py --check verifies every declared copy byte-for-byte; --write regenerates them. Role-specific files are listed but never overwritten.",
+  "assets": [
+    {
+      "group": "vault-contract.ps1",
+      "source": "shared/scripts/vault-contract.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/vault-contract.ps1",
+        "study-tech-learning/scripts/vault-contract.ps1",
+        "record-tech-learning/scripts/vault-contract.ps1",
+        "analyze-job-requirements/scripts/vault-contract.ps1",
+        "load-tech-learning-source/scripts/vault-contract.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements",
+        "load-tech-learning-source"
+      ],
+      "requires": [
+        "validation-common.ps1"
+      ]
+    },
+    {
+      "group": "validation-common.ps1",
+      "source": "shared/scripts/validation-common.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/validation-common.ps1",
+        "study-tech-learning/scripts/validation-common.ps1",
+        "record-tech-learning/scripts/validation-common.ps1",
+        "analyze-job-requirements/scripts/validation-common.ps1",
+        "load-tech-learning-source/scripts/validation-common.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements",
+        "load-tech-learning-source"
+      ]
+    },
+    {
+      "group": "vault-rules.ps1",
+      "source": "shared/scripts/vault-rules.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/vault-rules.ps1",
+        "record-tech-learning/scripts/vault-rules.ps1",
+        "analyze-job-requirements/scripts/vault-rules.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ],
+      "requires": [
+        "validation-common.ps1"
+      ]
+    },
+    {
+      "group": "route-rules.ps1",
+      "source": "shared/scripts/route-rules.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/route-rules.ps1",
+        "record-tech-learning/scripts/route-rules.ps1",
+        "analyze-job-requirements/scripts/route-rules.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ],
+      "requires": [
+        "vault-contract.ps1"
+      ]
+    },
+    {
+      "group": "validation-registry.ps1",
+      "source": "shared/scripts/validation-registry.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/validation-registry.ps1",
+        "record-tech-learning/scripts/validation-registry.ps1",
+        "analyze-job-requirements/scripts/validation-registry.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ],
+      "requires": [
+        "validation-common.ps1"
+      ]
+    },
+    {
+      "group": "validate-vault.ps1",
+      "source": "shared/scripts/validate-vault.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/validate-vault.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning"
+      ],
+      "requires": [
+        "vault-contract.ps1",
+        "vault-rules.ps1",
+        "route-rules.ps1"
+      ]
+    },
+    {
+      "group": "validate-change.ps1",
+      "source": "shared/scripts/validate-change.ps1",
+      "copies": [
+        "record-tech-learning/scripts/validate-change.ps1",
+        "direct-tech-learning/scripts/validate-change.ps1",
+        "analyze-job-requirements/scripts/validate-change.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ],
+      "requires": [
+        "validation-common.ps1",
+        "vault-contract.ps1",
+        "validate-scope.ps1",
+        "validation-registry.ps1"
+      ],
+      "optional_requires": [
+        "validate-vault.ps1"
+      ]
+    },
+    {
+      "group": "validate-scope.ps1",
+      "source": "shared/scripts/validate-scope.ps1",
+      "copies": [
+        "record-tech-learning/scripts/validate-scope.ps1",
+        "direct-tech-learning/scripts/validate-scope.ps1",
+        "analyze-job-requirements/scripts/validate-scope.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ],
+      "requires": [
+        "vault-contract.ps1",
+        "vault-rules.ps1",
+        "route-rules.ps1",
+        "validation-registry.ps1",
+        "validation-registry.json"
+      ]
+    },
+    {
+      "group": "validate-action.ps1",
+      "source": "shared/scripts/validate-action.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/validate-action.ps1",
+        "record-tech-learning/scripts/validate-action.ps1",
+        "analyze-job-requirements/scripts/validate-action.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ],
+      "requires": [
+        "vault-contract.ps1",
+        "validate-scope.ps1",
+        "validation-registry.ps1"
+      ]
+    },
+    {
+      "group": "validate-ready.ps1",
+      "source": "shared/scripts/validate-ready.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/validate-ready.ps1",
+        "study-tech-learning/scripts/validate-ready.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning"
+      ],
+      "requires": [
+        "validation-common.ps1",
+        "vault-contract.ps1"
+      ]
+    },
+    {
+      "group": "validate-snapshot.ps1",
+      "source": "shared/scripts/validate-snapshot.ps1",
+      "copies": [
+        "study-tech-learning/scripts/validate-snapshot.ps1",
+        "load-tech-learning-source/scripts/validate-snapshot.ps1"
+      ],
+      "skills": [
+        "study-tech-learning",
+        "load-tech-learning-source"
+      ]
+    },
+    {
+      "group": "build-study-context.py",
+      "source": "shared/scripts/build-study-context.py",
+      "copies": [
+        "study-tech-learning/scripts/build-study-context.py"
+      ],
+      "skills": [
+        "study-tech-learning"
+      ],
+      "requires": [
+        "material_context.py",
+        "vault_common.py",
+        "teaching_state.py"
+      ]
+    },
+    {
+      "group": "build-source-context.py",
+      "source": "shared/scripts/build-source-context.py",
+      "copies": [
+        "study-tech-learning/scripts/build-source-context.py",
+        "load-tech-learning-source/scripts/build-source-context.py"
+      ],
+      "skills": [
+        "study-tech-learning",
+        "load-tech-learning-source"
+      ],
+      "requires": [
+        "material_context.py",
+        "vault_common.py"
+      ]
+    },
+    {
+      "group": "material_context.py",
+      "source": "shared/scripts/material_context.py",
+      "copies": [
+        "study-tech-learning/scripts/material_context.py",
+        "load-tech-learning-source/scripts/material_context.py"
+      ],
+      "skills": [
+        "study-tech-learning",
+        "load-tech-learning-source"
+      ],
+      "requires": [
+        "vault_common.py"
+      ]
+    },
+    {
+      "group": "teaching_state.py",
+      "source": "shared/scripts/teaching_state.py",
+      "copies": [
+        "study-tech-learning/scripts/teaching_state.py"
+      ],
+      "skills": [
+        "study-tech-learning"
+      ],
+      "requires": [
+        "vault_common.py"
+      ]
+    },
+    {
+      "group": "resolve-source.ps1",
+      "source": "shared/scripts/resolve-source.ps1",
+      "copies": [
+        "study-tech-learning/scripts/resolve-source.ps1",
+        "load-tech-learning-source/scripts/resolve-source.ps1"
+      ],
+      "skills": [
+        "study-tech-learning",
+        "load-tech-learning-source"
+      ],
+      "requires": [
+        "vault-contract.ps1"
+      ]
+    },
+    {
+      "group": "vault_common.py",
+      "source": "shared/scripts/vault_common.py",
+      "copies": [
+        "study-tech-learning/scripts/vault_common.py",
+        "load-tech-learning-source/scripts/vault_common.py"
+      ],
+      "skills": [
+        "study-tech-learning",
+        "load-tech-learning-source"
+      ]
+    },
+    {
+      "group": "init-vault.ps1",
+      "source": "shared/scripts/init-vault.ps1",
+      "copies": [
+        "direct-tech-learning/scripts/init-vault.ps1",
+        "study-tech-learning/scripts/init-vault.ps1"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning"
+      ],
+      "requires": [
+        "validate-ready.ps1",
+        "vault-schema.json",
+        "vault-seed"
+      ]
+    },
+    {
+      "group": "check-draft.py",
+      "source": "shared/scripts/check-draft.py",
+      "copies": [
+        "study-tech-learning/scripts/check-draft.py"
+      ],
+      "skills": [
+        "study-tech-learning"
+      ],
+      "requires": [
+        "vault_common.py"
+      ]
+    },
+    {
+      "group": "curriculum-sources.md",
+      "source": "shared/references/curriculum-sources.md",
+      "copies": [
+        "load-tech-learning-source/references/curriculum-sources.md",
+        "study-tech-learning/references/curriculum-sources.md",
+        "direct-tech-learning/references/curriculum-sources.md",
+        "analyze-job-requirements/references/curriculum-sources.md"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning",
+        "load-tech-learning-source",
+        "analyze-job-requirements"
+      ]
+    },
+    {
+      "group": "jobnote-storage-contract.md",
+      "source": "shared/references/jobnote-storage-contract.md",
+      "copies": [
+        "analyze-job-requirements/references/jobnote-storage-contract.md"
+      ],
+      "skills": [
+        "analyze-job-requirements"
+      ],
+      "extract_of": "shared/references/tech-vault-schema.md",
+      "required_sections": [
+        "## Job requirement analysis"
+      ]
+    },
+    {
+      "group": "record-storage-contract.md",
+      "source": "shared/references/record-storage-contract.md",
+      "copies": [
+        "record-tech-learning/references/record-storage-contract.md"
+      ],
+      "skills": [
+        "record-tech-learning"
+      ],
+      "extract_of": "shared/references/tech-vault-schema.md",
+      "required_sections": [
+        "## Closed contract",
+        "## Homepage projection ownership",
+        "## Weekly factual ledger",
+        "## Review queue",
+        "## Daily learning review",
+        "## Atomic knowledge",
+        "## Review banks",
+        "## Vault-wide terminology",
+        "## Linking and validation"
+      ]
+    },
+    {
+      "group": "review-policy.md",
+      "source": "shared/references/review-policy.md",
+      "copies": [
+        "record-tech-learning/references/review-policy.md",
+        "review-tech-learning/references/review-policy.md"
+      ],
+      "skills": [
+        "record-tech-learning",
+        "review-tech-learning"
+      ]
+    },
+    {
+      "group": "review-storage-contract.md",
+      "source": "shared/references/review-storage-contract.md",
+      "copies": [
+        "review-tech-learning/references/review-storage-contract.md"
+      ],
+      "skills": [
+        "review-tech-learning"
+      ],
+      "extract_of": "shared/references/tech-vault-schema.md",
+      "required_sections": [
+        "## Review and assessment execution",
+        "## Review banks",
+        "## Review queue"
+      ]
+    },
+    {
+      "group": "study-session-protocol.md",
+      "source": "shared/references/study-session-protocol.md",
+      "copies": [
+        "study-tech-learning/references/study-session-protocol.md"
+      ],
+      "skills": [
+        "study-tech-learning"
+      ]
+    },
+    {
+      "group": "tech-vault-schema.md",
+      "source": "shared/references/tech-vault-schema.md",
+      "copies": [
+        "direct-tech-learning/references/tech-vault-schema.md"
+      ],
+      "skills": [
+        "direct-tech-learning"
+      ]
+    },
+    {
+      "group": "validation-registry.json",
+      "source": "shared/assets/validation-registry.json",
+      "copies": [
+        "direct-tech-learning/assets/validation-registry.json",
+        "record-tech-learning/assets/validation-registry.json",
+        "analyze-job-requirements/assets/validation-registry.json"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ]
+    },
+    {
+      "group": "vault-binding.md",
+      "source": "shared/references/vault-binding.md",
+      "copies": [
+        "answer-tech-learning/references/vault-binding.md"
+      ],
+      "skills": [
+        "answer-tech-learning"
+      ],
+      "extract_of": "shared/references/tech-vault-schema.md",
+      "required_sections": [
+        "## Vault binding and first-use creation"
+      ]
+    },
+    {
+      "group": "vault-schema.json",
+      "source": "shared/assets/vault-schema.json",
+      "copies": [
+        "direct-tech-learning/assets/vault-schema.json",
+        "study-tech-learning/assets/vault-schema.json",
+        "record-tech-learning/assets/vault-schema.json",
+        "analyze-job-requirements/assets/vault-schema.json"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning",
+        "record-tech-learning",
+        "analyze-job-requirements"
+      ]
+    },
+    {
+      "group": "vault-seed",
+      "source": "shared/assets/vault-seed",
+      "directory": true,
+      "copies": [
+        "direct-tech-learning/assets/vault-seed",
+        "study-tech-learning/assets/vault-seed"
+      ],
+      "skills": [
+        "direct-tech-learning",
+        "study-tech-learning"
+      ]
+    }
+  ],
+  "role_specific": [
+    "*/SKILL.md",
+    "*/scripts/validate-route.ps1",
+    "*/scripts/validate-terminology.ps1",
+    "*/scripts/validate-daily.ps1",
+    "*/scripts/validate-weekly.ps1",
+    "*/scripts/validate-atomic.ps1",
+    "*/scripts/validate-reviewbank.ps1",
+    "*/scripts/validate-queue.ps1",
+    "*/scripts/validate-jobnote.ps1",
+    "*/scripts/write-checkpoint.py",
+    "*/scripts/detect-delta.ps1",
+    "*/references/source-loading-protocol.md",
+    "*/references/review-session-protocol.md",
+    "*/references/job-requirement-analysis.md"
+  ]
+}

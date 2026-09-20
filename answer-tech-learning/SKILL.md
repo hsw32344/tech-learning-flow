@@ -7,43 +7,38 @@ description: Explain a focused technical concept, code behavior, error, comparis
 
 Answer one focused blocker or comparison, then return control to the current task without replacing study or review.
 
-## Load the contract
+## When to use
 
-Bind the Vault first: resolve it per `references/tech-vault-schema.md`; if it is missing or uninitialized, ask the user to initialize it with `direct-tech-learning` or `study-tech-learning` before reading.
+- `为什么`、`怎么理解`、`这段代码做什么`、`底层怎么运行`、`这个报错是什么`、`两种写法有什么区别`，or a focused blocker during study or practice.
+- Explicitly requested comments/Notebook Markdown, or a minimal correction in a selected source file.
 
-Read `references/tech-vault-schema.md`, `references/curriculum-sources.md`, and `10-术语规范.md`. When the question belongs to a task package, also read its learning snapshot if present; for an `FCC-*` source, read `99-附件/FCC学习操作范式.md`. Do not write to the Vault.
+## Inputs
 
-## Resolve sources
+- Vault binding: an explicit path, or the tracked pointer `%USERPROFILE%\.agents\tech-learning-flow\vault-path.txt`. If neither resolves, ask the user to initialize or bind a Vault; never scan unrelated directories. This mode never writes to the Vault.
+- Workspace: only user-selected files, or `当前工作区` when one active root is unambiguous.
+- Question context: the exact question, selected code/cells/reproducible output, and, when continuing a task package, the visible parent slice, JSON study/material context, Markdown source packet, or conversation context.
+- If the binding mechanics themselves are unclear, read `references/vault-binding.md`; it is never a mandatory preload.
 
-- Read or edit only user-selected workspace files.
-- Treat `当前工作区` as explicit only when one active root is unambiguous.
-- Never search unrelated projects.
-- When the question arises inside a task package, locate the package's recorded primary tutorial section before explaining. Use it for teaching context and current registered official documentation to verify technical facts, version boundaries, and conflicts.
-- Use the task snapshot only to recover the covered slice, prior explanation, stopping locator, and unresolved mechanism. Do not infer that the learner attempted, completed, or can perform anything from snapshot content.
-- Use relevant unit IDs, code, cells, reproducible output, Vault notes, and registered official sources. Do not invent a replacement course, silently combine multiple tutorials, or represent an Agent explanation as course coverage.
+## Minimal reads
 
-## Explain causally
+- Read only the question, the selected code or target slice, the terminology rows that matter, and the visible parent context.
+- Reuse any matching JSON context, Markdown source packet, or teaching context already visible in this conversation; do not re-resolve the task or re-read the whole mainline and snapshot.
+- A task snapshot is read only to recover the covered slice, prior explanation, stopping locator, and unresolved mechanism; it never proves an attempt, completion, or ability.
+- For an `FCC-*` task read `99-附件/FCC学习操作范式.md` before explaining.
+- Extend only when: the source or version is disputed, the question leaves the visible slice, or the user explicitly asks for verification.
 
-Answer the exact question first. For unfamiliar behavior or failure, cover only the needed parts of:
+## Allowed writes
 
-1. objects, values, resources, and state before execution;
-2. the rule selecting the next operation;
-3. name/attribute/argument/row/cell resolution and data/control flow;
-4. responsibility boundaries;
-5. why the result follows;
-6. the first failing divergence and minimum correction;
-7. what the mechanism does not guarantee.
+- No Vault state: never change route, position, queue, evidence, terminology, logs, or snapshots.
+- A selected source file only when explicitly requested: smallest complete correction, preserve layout and unrelated changes, verify with the selected runtime when needed; never install packages or change environments.
 
-Distinguish verified behavior, inference, advice, and version-dependent claims. Prefer one concrete execution trace when behavior is non-obvious. Give the minimum causal explanation or correction needed to unblock the task, aligned with the current tutorial section; do not restart the whole course, expand easy prerequisites for completeness, or generate an assessment.
+## Handoff
 
-## Source edits
+- Sustained task execution -> `study-tech-learning`; explicit practice/assessment -> `review-tech-learning`; actual facts -> `record-tech-learning`; route changes -> `direct-tech-learning`.
+- A focused question during study preserves the parent cursor: hand pending/resolved why-questions back to study, which alone writes the runtime checkpoint.
 
-Modify a source file only when explicitly requested. Resolve exact files, preserve layout and unrelated changes, make the smallest complete correction, and verify with the selected runtime when needed. Never install packages or change environments.
+## Done check
 
-## Boundaries
-
-Never change the Vault, route, position, queue, evidence, or terminology. Hand sustained task execution to `study-tech-learning`, explicit practice/assessment to `review-tech-learning`, actual facts to `record-tech-learning`, and route changes to `direct-tech-learning`.
-
-## Preserve an active study cursor
-
-A focused question during study does not advance or reset the parent slice. Read only its visible context and, if needed, the target packet. Apply the six content-adequacy criteria in `references/study-session-protocol.md` to the explanation without forcing the seven-stage study layout onto a focused answer. Hand pending/resolved why-questions back to study; do not require code execution or FCC proof. Only study writes its runtime checkpoint.
+- The answer addresses the exact question with a causal trace: state before execution, controlling rule, intermediate steps, first failing divergence, minimum correction, and what the mechanism does not guarantee.
+- Verified behavior, inference, advice, and version-dependent claims stay distinguishable; prefer one concrete execution trace when behavior is non-obvious.
+- Do not restart the whole course, expand easy prerequisites for completeness, or generate an assessment.

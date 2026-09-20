@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+.serena/
+tests/
+validation_v0.1.0.md
+validation_v1.0.0.md

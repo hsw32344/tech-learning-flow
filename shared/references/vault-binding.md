@@ -1,0 +1,10 @@
+## Vault binding and first-use creation
+
+- Resolve the target Vault in this order: an explicit path the user gives; the `TECH_LEARNING_VAULT` environment variable; the tracked pointer `%USERPROFILE%\.agents\tech-learning-flow\vault-path.txt`; otherwise ask the user once for the Vault path.
+- Never infer the target Vault from the current directory and never search unrelated directories for another Vault.
+- On first use, `direct-tech-learning` or `study-tech-learning` creates the minimal valid Vault skeleton from its bundled `assets/vault-seed` by running `scripts/init-vault.ps1`; other Skills ask the user to initialize through one of them. The script creates missing directories and files, never overwrites existing content unless `-Force`, records the pointer, writes `.tech-vault.json`, then runs the independent `scripts/validate-ready.ps1` readiness gate and reports `valid`. To bind an existing Vault without copying seed files, use `-Bind`.
+- The Vault owns the outermost schema: `.tech-vault.json` embeds the full structural schema plus `schema_version` and instance metadata. The bundle ships only a default seed schema (`assets/vault-schema.json`) used when creating a new Vault. `validate-vault.ps1 -Strict` is the explicit full structural audit maintained by `direct-tech-learning`; it loads the Vault's own schema, falls back to the bundled default with a warning when the schema is absent, verifies the Vault against that schema, and reconciles `schema_version` against the supported version. Routine actions use their registered targets and dependencies instead of this audit. Never silently rewrite user content. The `15-自由笔记/` and `25-资源区/外部/` areas are freeform and never validated; `25-资源区/学习快照/` stores snapshots and `97-临时/` holds scratch files.
+- Require an explicitly identified source workspace for source ingestion or editing.
+- Treat `当前工作区` as explicit only when one active root is unambiguous.
+- Never search unrelated projects to guess a source.
+- Environments and source paths are provenance, not Vault runtime state.

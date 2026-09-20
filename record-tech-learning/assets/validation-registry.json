@@ -1,0 +1,130 @@
+{
+  "version": 2,
+  "description": "Authoritative action-to-impact registry. Each action declares its allowed write surface, default impact paths, validation kinds, owning skills, and runtime dependencies. Standalone validators are listed separately because they do not run through the scoped change executor. validate-vault.ps1 remains the explicit whole-vault audit.",
+  "kind_roots": {
+    "route": ["20-学习主线", "00-首页.md"],
+    "terminology": ["10-术语规范.md"],
+    "homepage": ["00-首页.md"],
+    "topicmap": ["50-主题地图"],
+    "atomic": ["40-原子知识"],
+    "daily": ["30-学习日志/学习回顾"],
+    "weekly": ["30-学习日志/每周"],
+    "reviewbank": ["60-复习"],
+    "queue": ["70-复习队列.md"],
+    "jobnote": ["20-学习主线/岗位分析"],
+    "links": []
+  },
+  "actions": [
+    {
+      "id": "route",
+      "skills": ["direct-tech-learning"],
+      "kinds": ["route"],
+      "writes": ["00-首页.md route mirrors", "20-学习主线/00-总览.md", "20-学习主线/20-任务包注册表.md", "20-学习主线/10-阶段", "20-学习主线/资料来源注册表.md"],
+      "default_paths": ["00-首页.md", "20-学习主线/00-总览.md", "20-学习主线/20-任务包注册表.md", "20-学习主线/资料来源注册表.md", "20-学习主线/10-阶段"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "terminology",
+      "skills": ["direct-tech-learning"],
+      "kinds": ["terminology"],
+      "writes": ["10-术语规范.md stage and mainline-node rows"],
+      "default_paths": ["10-术语规范.md"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "daily-record",
+      "skills": ["record-tech-learning"],
+      "kinds": ["daily"],
+      "writes": ["30-学习日志/学习回顾"],
+      "default_paths": ["30-学习日志/学习回顾"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "weekly-record",
+      "skills": ["record-tech-learning"],
+      "kinds": ["weekly"],
+      "writes": ["30-学习日志/每周"],
+      "default_paths": ["30-学习日志/每周"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "atomic-record",
+      "skills": ["record-tech-learning"],
+      "kinds": ["atomic"],
+      "writes": ["40-原子知识"],
+      "default_paths": ["40-原子知识"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "review-record",
+      "skills": ["record-tech-learning"],
+      "kinds": ["reviewbank"],
+      "writes": ["60-复习"],
+      "default_paths": ["60-复习"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "review-queue",
+      "skills": ["record-tech-learning"],
+      "kinds": ["queue"],
+      "writes": ["70-复习队列.md"],
+      "default_paths": ["70-复习队列.md"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "homepage-facts",
+      "skills": ["record-tech-learning"],
+      "kinds": ["homepage"],
+      "writes": ["00-首页.md current_week, latest_review, and factual navigation links"],
+      "default_paths": ["00-首页.md"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "topic-map",
+      "skills": ["record-tech-learning"],
+      "kinds": ["topicmap"],
+      "writes": ["50-主题地图"],
+      "default_paths": ["50-主题地图"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "terminology-record",
+      "skills": ["record-tech-learning"],
+      "kinds": ["terminology"],
+      "writes": ["10-术语规范.md topic, concept, mechanism, API, syntax, and tag rows"],
+      "default_paths": ["10-术语规范.md"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "jobnote",
+      "skills": ["analyze-job-requirements"],
+      "kinds": ["jobnote"],
+      "writes": ["20-学习主线/岗位分析"],
+      "default_paths": ["20-学习主线/岗位分析"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    }
+  ],
+  "standalone": [
+    {
+      "id": "vault-ready",
+      "skills": ["direct-tech-learning", "study-tech-learning"],
+      "script": "validate-ready.ps1",
+      "writes": [".tech-vault.json", "vault seed files", "vault binding pointer"],
+      "dependencies": ["validation-common.ps1", "vault-contract.ps1", "validate-ready.ps1"]
+    },
+    {
+      "id": "snapshot-check",
+      "skills": ["study-tech-learning", "load-tech-learning-source"],
+      "script": "validate-snapshot.ps1",
+      "writes": ["25-资源区/学习快照/<unit-id> 学习快照.md"],
+      "dependencies": ["validate-snapshot.ps1"]
+    },
+    {
+      "id": "draft-check",
+      "skills": ["study-tech-learning"],
+      "script": "check-draft.py",
+      "writes": ["97-临时 draft and review artifacts"],
+      "dependencies": []
+    }
+  ]
+}
