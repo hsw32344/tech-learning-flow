@@ -7,6 +7,8 @@ description: Resolve a fixed tech_vault task package to its registered learning 
 
 Load source evidence for one task slice without teaching, assessing, or changing the route.
 
+Prioritize the current situation/goal, concrete objects and relationships, source demonstrations and observable results. Supply principles and boundaries that support those inputs, not a compulsory lecture on internals. Material coverage is not a requirement to teach every stored detail in one response; never fabricate a source example to fill a packet field.
+
 ## When to use
 
 - `抓取当前任务包资料`、`从 FCC 或菜鸟教程提取相关内容`、`加载主学习源`、`解析真实课程章节`、`准备学习资料`; whenever study lacks an accessible exact source section.

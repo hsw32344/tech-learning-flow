@@ -1,11 +1,13 @@
 ---
 name: study-tech-learning
-description: Teach or continue source-backed technical learning, or prepare a cumulative learning snapshot. Use for 开始学习、继续学习、下一片、从这里接着学、准备学习快照. Explain core causal logic, resume within a slice, and advance on user choice without FCC completion or artifact evidence. Practice and assessment are explicit-only.
+description: Teach or continue source-backed technical learning, or prepare a cumulative learning snapshot. Use for 开始学习、继续学习、下一片、从这里接着学、准备学习快照. Build a usable mental model and teach observable operations; explain principles and boundaries in support of those goals. Resume within a slice and advance on user choice without completion evidence. Practice and assessment are explicit-only.
 ---
 
 # Study technical learning
 
 Teach or continue source-backed learning; materialize only new or changed material.
+
+Priority: usable mental model -> ability to operate -> supporting principles -> relevant boundaries. Follow the teaching protocol, not the snapshot's storage headings. Use a stable concrete example, connect new terms to visible objects, and show before/after effects. Do not invent why-questions or edge cases to fill a template. A conceptual lesson may use a diagram without a runnable task. Demonstration and optional follow-along are not assessment.
 
 ## When to use
 
@@ -37,10 +39,10 @@ Teach or continue source-backed learning; materialize only new or changed materi
 
 - Focused follow-up questions -> `answer-tech-learning` with the parent cursor preserved.
 - Explicit practice -> `review-tech-learning`; explicit activity recording -> `record-tech-learning`; route changes -> `direct-tech-learning`. No silent mode changes.
-- A pending why-question is resolved before advancing unless the user explicitly skips it.
+- A pending question or report of confusion is resolved before advancing unless the user explicitly skips it. Repair the current model rather than adding jargon or moving to the next chapter.
 
 ## Done check
 
-- The exact draft plus its bounded Agent content review pass `scripts/check-draft.py` before sending; fix only deficient mechanisms and rerun after changes.
+- The exact natural-layout draft plus its version-2 Agent review pass `scripts/check-draft.py` before sending; repair only deficient content and rerun after changes. The legacy layout is available only through `--format legacy` for historical checks.
 - Persist resume state with `scripts/write-checkpoint.py` using the `study_context.state_revision`; a position becomes usable only when the response is actually visible in the conversation.
 - Keep review details in temporary artifacts; report semantic checking as Agent judgment, never as machine proof.

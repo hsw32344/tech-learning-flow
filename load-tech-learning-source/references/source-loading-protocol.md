@@ -29,10 +29,12 @@ When the resolved source code starts with `FCC-`, read `99-附件/FCC学习操�
 
 Build a short checklist from the resolved task row:
 
-1. canonical content needed now;
-2. causal state, rule, data or control flow, result, and boundary;
-3. minimum artifact supported by this slice;
-4. one directly blocking prerequisite, if observed.
+1. the current situation and goal within the canonical content;
+2. concrete objects and relationships needed for a usable mental model;
+3. source demonstrations or operations, their starting conditions and observable before/after results, when available;
+4. principles that explain those results, relevant boundaries, and one directly blocking prerequisite if observed.
+
+Do not acquire rare failures or internals solely to fill a checklist. A conceptual source need not supply executable operations; state what it actually provides. Keep Agent examples distinct from source examples. For an explicitly selected video or sandbox, identify the actual timestamp/section, visible diagram or operation; a title or progress indicator cannot establish its content. Mentioning a medium is not permission to replace the learning route.
 
 Select the earliest coherent source section that covers the current checklist. Preserve the source's actual order. Do not expand easy foundations, later projects, reviews, quizzes, or certification material merely for completeness.
 
@@ -89,8 +91,12 @@ Return concise Markdown with these fields:
 
 ### Learning input
 - framework: `<where this slice fits>`
-- causal_flow: `<state -> rule -> flow -> result -> boundary>`
-- key_material: `<compact paraphrase and essential code shape>`
+- situation_goal: `<current concrete situation and learning goal>`
+- model: `<objects, relationships and relevant starting state>`
+- demonstration: `<source example/operation and observable before/after results, or not provided>`
+- causal_flow: `<explanation needed for these results; conceptual relationship if no operation>`
+- key_material: `<compact faithful paraphrase and essential code shape when applicable>`
+- relevant_boundaries: `<current operational risk/common failure or none needed now>`
 - technical_checks: `<official correction or none>`
 
 ### Resume
@@ -99,7 +105,7 @@ Return concise Markdown with these fields:
 - excluded: `<material deliberately not loaded>`
 ```
 
-Omit empty repetition, not the evidence fields. Use short quotations only when wording itself matters. The Markdown source packet is source input, not proof of study, completion, independent performance, or mastery.
+Omit empty repetition, not the evidence fields. Existing packets with framework/causal_flow/key_material remain usable when they contain sufficient input; do not refetch just to populate new descriptive fields. Material supports natural teaching, not a required output template. Use short quotations only when wording itself matters. The Markdown source packet is source input, not proof of study, completion, independent performance, or mastery.
 
 ## Cursor and adequacy boundary
 

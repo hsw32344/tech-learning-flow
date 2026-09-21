@@ -1,18 +1,25 @@
-"""Validate the seven-section study draft and its bounded Agent content review.
+"""Validate a natural-layout study draft and its version-2 Agent content review.
 
-Structure checks are mechanical. The compact review lists stable criterion IDs
-that passed and carries reasons only for failures; the tool computes the draft
-hash, mechanism list, and source order, and never proves semantic correctness.
+The tool owns the draft hash and the ordered block spans/hashes (including
+code fences); the Agent owns the goal, source declarations, block-to-source
+mapping and the six content checks. Legacy seven-section drafts are validated
+only when ``--format legacy`` is passed explicitly. Structure and review
+coverage are mechanical; semantic judgment remains the Agent's responsibility.
 Owned by study-tech-learning.
 """
 from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import re
+from pathlib import Path
 
 from vault_common import load, plain_lines, run, section, sha, utf8_stdout
+
+NATURAL_CRITERIA = ['focus', 'model', 'example', 'operation', 'depth', 'source']
+LESSON_KINDS = ['operation', 'concept', 'mixed']
+SOURCE_ROLES = ['primary', 'supplement', 'fallback']
+STATUSES = ['pass', 'fail', 'uncertain', 'not_applicable']
 
 HEADINGS = ['一、已核验来源与覆盖范围', '二、应掌握地图', '三、主源忠实讲解',
             '四、结构化知识点', '五、块级总结', '六、岗位/面试映射', '七、事实收尾']
@@ -21,7 +28,159 @@ CRITERIA = ['question', 'state', 'rule', 'trace', 'boundary', 'understanding']
 SOURCE_CHECKS = ['coverage', 'fidelity', 'correctness']
 
 
-def inspect_draft(text):
+def split_blocks(text):
+    """Ordered evidence blocks bounded by level-1/2 headings; fences are data."""
+    lines = text.splitlines(keepends=True)
+    mask = plain_lines(text)
+    heads = [i for i, line in enumerate(mask) if re.match(r'^#{1,2} ', line.strip())]
+    starts = [0] + [h for h in heads if h != 0]
+    blocks = []
+    for index, start in enumerate(starts):
+        end = starts[index + 1] if index + 1 < len(starts) else len(lines)
+        body = ''.join(lines[start:end])
+        if not body.strip():
+            continue
+        label = ''
+        if start < len(mask) and re.match(r'^#{1,2} ', mask[start].strip()):
+            label = mask[start].strip()
+        else:
+            for probe in range(start, end):
+                candidate = mask[probe].strip() if probe < len(mask) else ''
+                if candidate:
+                    label = candidate[:48]
+                    break
+            if not label:
+                label = 'empty block'
+        blocks.append({
+            'id': 'B%d' % (len(blocks) + 1),
+            'span': [start, end],
+            'label': label,
+            'sha256': sha(body.encode('utf-8')),
+        })
+    return blocks
+
+
+def build_natural_scaffold(raw, blocks):
+    return {
+        'schema_version': 2,
+        'draft_sha256': sha(raw),
+        'goal': '',
+        'lesson_kind': '',
+        'sources': [],
+        'blocks': {
+            block['id']: {'span': block['span'], 'label': block['label'],
+                          'sha256': block['sha256'], 'sources': []}
+            for block in blocks
+        },
+        'checks': {
+            name: {'status': '', 'evidence': [], 'reason': ''}
+            for name in NATURAL_CRITERIA
+        },
+    }
+
+
+def validate_natural(review, raw, blocks):
+    issues = []
+    if not isinstance(review, dict):
+        return ['Content review malformed']
+    if review.get('schema_version') != 2:
+        issues.append('Natural review requires schema_version 2 (use --format legacy for historical drafts)')
+    if review.get('draft_sha256') != sha(raw):
+        issues.append('Content review missing or stale: draft hash mismatch')
+    goal = review.get('goal')
+    if not isinstance(goal, str) or not goal.strip():
+        issues.append('goal missing or empty')
+    kind = review.get('lesson_kind')
+    if kind not in LESSON_KINDS:
+        issues.append('lesson_kind must be one of: ' + ', '.join(LESSON_KINDS))
+
+    source_ids = []
+    sources = review.get('sources')
+    if not isinstance(sources, list) or not sources:
+        issues.append('sources missing or empty')
+    else:
+        for item in sources:
+            if not isinstance(item, dict):
+                issues.append('source entry malformed')
+                continue
+            sid = item.get('id')
+            if not isinstance(sid, str) or not sid.strip():
+                issues.append('source id missing')
+                sid = str(sid)
+            elif sid in source_ids:
+                issues.append('duplicate source id: ' + sid)
+            else:
+                source_ids.append(sid)
+            locator = item.get('locator')
+            if not isinstance(locator, str) or not locator.strip():
+                issues.append(sid + ': source locator missing')
+            if item.get('role') not in SOURCE_ROLES:
+                issues.append(sid + ': source role must be one of: ' + ', '.join(SOURCE_ROLES))
+
+    expected = {block['id']: block for block in blocks}
+    reviewed_blocks = review.get('blocks')
+    used_sources = set()
+    if not isinstance(reviewed_blocks, dict):
+        issues.append('blocks mapping missing')
+    else:
+        if set(reviewed_blocks) != set(expected):
+            issues.append('Review must cover exactly the rendered blocks; re-emit the scaffold after changes')
+        for bid, block in expected.items():
+            entry = reviewed_blocks.get(bid)
+            if not isinstance(entry, dict):
+                issues.append(bid + ': block entry missing')
+                continue
+            if entry.get('sha256') != block['sha256'] or list(entry.get('span') or []) != list(block['span']):
+                issues.append(bid + ': block hash or span mismatch (stale review)')
+            if entry.get('label') != block['label']:
+                issues.append(bid + ': block label mismatch (stale review)')
+            mapped = entry.get('sources')
+            if not isinstance(mapped, list) or not mapped:
+                issues.append(bid + ': no source mapped')
+            else:
+                for sid in mapped:
+                    if sid not in source_ids:
+                        issues.append(bid + ': unknown source ' + str(sid))
+                    elif isinstance(sid, str):
+                        used_sources.add(sid)
+        for sid in source_ids:
+            if sid not in used_sources:
+                issues.append('Declared source is not mapped to any block: ' + sid)
+
+    checks = review.get('checks')
+    if not isinstance(checks, dict):
+        issues.append('checks missing')
+        return issues
+    if set(checks) != set(NATURAL_CRITERIA):
+        issues.append('checks must cover exactly: ' + ', '.join(NATURAL_CRITERIA))
+    block_ids = set(expected)
+    for name in NATURAL_CRITERIA:
+        entry = checks.get(name)
+        if not isinstance(entry, dict):
+            issues.append(name + ': unreviewed')
+            continue
+        status = entry.get('status')
+        if status not in STATUSES:
+            issues.append(name + ': unreviewed')
+            continue
+        reason = entry.get('reason')
+        if not isinstance(reason, str) or not reason.strip():
+            issues.append(name + ': reason missing')
+        evidence = entry.get('evidence')
+        if not isinstance(evidence, list) or not evidence:
+            issues.append(name + ': block evidence missing')
+        else:
+            for bid in evidence:
+                if bid not in block_ids:
+                    issues.append(name + ': unknown block ' + str(bid))
+        if status == 'not_applicable' and not (name == 'operation' and kind == 'concept'):
+            issues.append(name + ': not_applicable is allowed only for operation on a concept lesson')
+        if status in ('fail', 'uncertain'):
+            issues.append(name + ': marked ' + status + ' and blocks delivery')
+    return issues
+
+
+def inspect_legacy(text):
     issues = []
     headings = [line[3:] for line in plain_lines(text) if line.startswith('## ')]
     if headings != HEADINGS:
@@ -175,7 +334,7 @@ def check_mechanism_legacy(mid, criterion, item, body):
     return [scope]
 
 
-def validate_review(review, raw, text, source_ids, mechanisms):
+def validate_review_legacy(review, raw, text, source_ids, mechanisms):
     issues = []
     if review.get('draft_sha256') != sha(raw):
         issues.append('Content review missing or stale: draft hash mismatch')
@@ -209,7 +368,7 @@ def validate_review(review, raw, text, source_ids, mechanisms):
     return issues
 
 
-def build_scaffold(raw, source_ids, mechanisms):
+def build_legacy_scaffold(raw, source_ids, mechanisms):
     return {
         'draft_sha256': sha(raw),
         'source_order': source_ids,
@@ -220,33 +379,67 @@ def build_scaffold(raw, source_ids, mechanisms):
     }
 
 
-def execute(args):
-    raw = Path(args.draft).read_bytes()
-    text = raw.decode('utf-8-sig')
-    issues, source_ids, mechanisms = inspect_draft(text)
-    scope = 'structure and Agent-review coverage; semantic judgment remains Agent responsibility'
+def execute_natural(args, raw, text):
+    blocks = split_blocks(text)
+    issues = []
+    if not blocks:
+        issues.append('Draft has no teachable content')
+    scope = 'natural-layout structure and version-2 Agent-review coverage; semantic judgment remains Agent responsibility'
     if args.emit_review:
         if args.review:
             issues.append('--emit-review cannot be combined with --review')
         else:
-            scaffold = build_scaffold(raw, source_ids, mechanisms)
+            scaffold = build_natural_scaffold(raw, blocks)
             Path(args.emit_review).write_text(
                 json.dumps(scaffold, ensure_ascii=False, indent=2), encoding='utf-8')
         return {'valid': not issues, 'issues': issues, 'draft_sha256': sha(raw),
-                'mechanisms': list(mechanisms), 'review_scaffold': args.emit_review,
+                'lesson_format': 'natural', 'blocks': [block['id'] for block in blocks],
+                'review_scaffold': args.emit_review,
                 'semantic_correctness_proven': False, 'scope': scope}
     review = load(args.review) if args.review else {}
-    issues.extend(validate_review(review, raw, text, source_ids, mechanisms))
+    issues.extend(validate_natural(review, raw, blocks))
     return {'valid': not issues, 'issues': issues, 'draft_sha256': sha(raw),
-            'mechanisms': list(mechanisms), 'semantic_correctness_proven': False, 'scope': scope}
+            'lesson_format': 'natural', 'blocks': [block['id'] for block in blocks],
+            'semantic_correctness_proven': False, 'scope': scope}
+
+
+def execute_legacy(args, raw, text):
+    issues, source_ids, mechanisms = inspect_legacy(text)
+    scope = 'legacy seven-section structure and Agent-review coverage; semantic judgment remains Agent responsibility'
+    if args.emit_review:
+        if args.review:
+            issues.append('--emit-review cannot be combined with --review')
+        else:
+            scaffold = build_legacy_scaffold(raw, source_ids, mechanisms)
+            Path(args.emit_review).write_text(
+                json.dumps(scaffold, ensure_ascii=False, indent=2), encoding='utf-8')
+        return {'valid': not issues, 'issues': issues, 'draft_sha256': sha(raw),
+                'lesson_format': 'legacy', 'mechanisms': list(mechanisms),
+                'review_scaffold': args.emit_review,
+                'semantic_correctness_proven': False, 'scope': scope}
+    review = load(args.review) if args.review else {}
+    issues.extend(validate_review_legacy(review, raw, text, source_ids, mechanisms))
+    return {'valid': not issues, 'issues': issues, 'draft_sha256': sha(raw),
+            'lesson_format': 'legacy', 'mechanisms': list(mechanisms),
+            'semantic_correctness_proven': False, 'scope': scope}
+
+
+def execute(args):
+    raw = Path(args.draft).read_bytes()
+    text = raw.decode('utf-8-sig')
+    if args.format == 'legacy':
+        return execute_legacy(args, raw, text)
+    return execute_natural(args, raw, text)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--draft', required=True)
     parser.add_argument('--review')
+    parser.add_argument('--format', choices=['natural', 'legacy'], default='natural',
+                        help='natural: default current layout; legacy: historical seven-section drafts only')
     parser.add_argument('--emit-review', dest='emit_review',
-                        help='write a review skeleton (hash, source order, mechanisms) for this draft')
+                        help='write a review skeleton (hash, blocks/spans or mechanisms) for this draft')
     args = parser.parse_args()
     return run(lambda: execute(args))
 
