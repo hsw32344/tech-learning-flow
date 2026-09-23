@@ -75,19 +75,17 @@ def main() -> int:
             vault = make_vault(Path(temporary) / "vault")
             populate(vault, SCALE[args.fixture])
         strict = DIRECT / "scripts" / "validate-vault.ps1"
-        thin_daily = SKILL_DIRS["record"] / "scripts" / "validate-daily.ps1"
-        thin_weekly = SKILL_DIRS["record"] / "scripts" / "validate-weekly.ps1"
+        thin_learning = SKILL_DIRS["record"] / "scripts" / "validate-learning.ps1"
         thin_atomic = SKILL_DIRS["record"] / "scripts" / "validate-atomic.ps1"
         change = SKILL_DIRS["record"] / "scripts" / "validate-change.ps1"
         sample_atomic = vault / "40-原子知识" / "基准" / "基准对象 0000 - 问题 0000.md"
         runs = [
             measure("core", strict, vault, userprofile, repeat=args.repeat),
             measure("strict", strict, vault, userprofile, "-Strict", repeat=args.repeat),
-            measure("thin-daily", thin_daily, vault, userprofile, repeat=args.repeat),
         ]
         if sample_atomic.exists():
             runs += [
-                measure("thin-weekly", thin_weekly, vault, userprofile, repeat=args.repeat),
+                measure("thin-learning", thin_learning, vault, userprofile, repeat=args.repeat),
                 measure("thin-atomic", thin_atomic, vault, userprofile, repeat=args.repeat),
                 measure("change-batch", change, vault, userprofile,
                         "-Kinds", "atomic", "-Paths", sample_atomic, repeat=args.repeat),

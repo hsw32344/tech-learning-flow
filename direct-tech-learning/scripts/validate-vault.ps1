@@ -234,58 +234,32 @@ foreach ($file in $markdown) {
     }
 }
 
-$reviewRoot = Join-Path $vaultPath '30-学习日志\学习回顾'
-$invalidDailyReviews = @()
-$reviewDates = @{}
-foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $reviewRoot)) {
-    $content = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName
-    $issues = @(Get-DailyReviewIssues -Content $content -BaseName $file.BaseName)
-    if ($file.BaseName -match '^(\d{4}-\d{2}-\d{2}) 学习回顾$') {
-        $date = $Matches[1]
-        if (-not $reviewDates.ContainsKey($date)) {
-            $reviewDates[$date] = @()
-        }
-        $reviewDates[$date] += $file.FullName
-        if (-not (Test-DailyReviewSourceSection -Content $content)) {
-            $warnings += "daily review lacks actual learning-source section: $($file.FullName)"
-        }
-    }
-    if ($issues.Count -gt 0) {
-        $invalidDailyReviews += [pscustomobject]@{
-            path = $file.FullName
-            issues = $issues
-        }
-    }
+$logRoots = [ordered]@{
+    learning = Join-Path $vaultPath '30-日志\学习'
+    work     = Join-Path $vaultPath '30-日志\工作'
+    decision = Join-Path $vaultPath '30-日志\决定'
 }
-$duplicateReviewDates = @(
-    $reviewDates.GetEnumerator() |
-        Where-Object { $_.Value.Count -gt 1 } |
-        ForEach-Object {
-            [pscustomobject]@{
-                date = $_.Key
-                paths = $_.Value
+$invalidLearningLogs = @()
+$invalidWorkLogs = @()
+$invalidDecisionLogs = @()
+foreach ($kind in $logRoots.Keys) {
+    $root = $logRoots[$kind]
+    if (-not (Test-Path -LiteralPath $root -PathType Container)) { continue }
+    $bucket = @()
+    foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $root)) {
+        $content = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName
+        $issues = @(Get-LogNoteIssues -Content $content -BaseName $file.BaseName -Kind $kind)
+        if ($issues.Count -gt 0) {
+            $bucket += [pscustomobject]@{
+                path = $file.FullName
+                issues = $issues
             }
         }
-)
-
-$dailyTemplatePath = Join-Path $vaultPath '90-模板\学习回顾模板.md'
-$dailyTemplateContent = Get-Content -Raw -Encoding UTF8 -LiteralPath $dailyTemplatePath
-$dailyTemplateIssues = @(Get-DailyTemplateIssues -Content $dailyTemplateContent)
-
-$weeklyRoot = Join-Path $vaultPath '30-学习日志\每周'
-$weeklyRequiredHeadings = @($schema.weekly.headings)
-$weeklyRequiredProperties = @($schema.weekly.properties)
-$invalidWeeklyNotes = @()
-foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $weeklyRoot)) {
-    $content = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName
-    $issues = @(Get-WeeklyNoteIssues -Content $content -BaseName $file.BaseName `
-            -Properties $weeklyRequiredProperties -Headings $weeklyRequiredHeadings `
-            -StatusEnum @($schema.weekly.status_enum))
-    if ($issues.Count -gt 0) {
-        $invalidWeeklyNotes += [pscustomobject]@{
-            path = $file.FullName
-            issues = $issues
-        }
+    }
+    switch ($kind) {
+        'learning' { $invalidLearningLogs = $bucket }
+        'work' { $invalidWorkLogs = $bucket }
+        'decision' { $invalidDecisionLogs = $bucket }
     }
 }
 
@@ -300,7 +274,7 @@ $taskRegistryContent = if (Test-Path -LiteralPath $taskRegistryPath -PathType Le
 $stageFiles = if (Test-Path -LiteralPath $stageDir -PathType Container) { @(Get-ChildItem -LiteralPath $stageDir -File -Filter '*.md' | Sort-Object Name) } else { @() }
 $stageContent = (@($stageFiles | ForEach-Object { Get-Content -Raw -Encoding UTF8 -LiteralPath $_.FullName }) -join "`n")
 $routeStructureIssues = @(Get-RouteStructureRuleIssues -HomepageContent $homepageContent -MainlineContent $mainlineContent `
-        -Schema $schema -WeeklyRoot $weeklyRoot)
+        -Schema $schema -VaultRoot $vaultPath)
 $homepageIssues = @($routeStructureIssues | Where-Object { $_.field -eq 'homepage_issues' } | ForEach-Object { $_.message })
 $mainlineIssues = @($routeStructureIssues | Where-Object { $_.field -eq 'mainline_issues' } | ForEach-Object { $_.message })
 
@@ -346,10 +320,6 @@ $reviewQueueIssues = @(Get-ReviewQueueIssues -Content $reviewQueueContent -Headi
 $reviewTemplatePath = Join-Path $vaultPath '90-模板\复习题模板.md'
 $reviewTemplateContent = Get-Content -Raw -Encoding UTF8 -LiteralPath $reviewTemplatePath
 $reviewTemplateIssues = @(Get-ReviewTemplateIssues -Content $reviewTemplateContent)
-
-$weeklyTemplatePath = Join-Path $vaultPath '90-模板\每周学习复盘模板.md'
-$weeklyTemplateContent = Get-Content -Raw -Encoding UTF8 -LiteralPath $weeklyTemplatePath
-$weeklyTemplateIssues = @(Get-WeeklyTemplateIssues -Content $weeklyTemplateContent -Properties $weeklyRequiredProperties -Headings $weeklyRequiredHeadings)
 
 $jobRequirementTemplatePath = Join-Path $vaultPath '90-模板\岗位需求分析模板.md'
 $jobRequirementTemplateIssues = @()
@@ -544,18 +514,6 @@ if ($mainlineContent -match '(?m)^current_stage:\s*(.+?)\s*$') {
 foreach ($match in [regex]::Matches($mainlineContent, '(?m)^## 阶段[一二三四五六七八九十]+：(.+?)\s*$')) {
     Test-CanonicalValue $mainlinePath 'mainline_stage' $match.Groups[1].Value.Trim()
 }
-foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $weeklyRoot)) {
-    $content = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName
-    if ($content -match '(?m)^stage:\s*(.+?)\s*$') {
-        Test-CanonicalValue $file.FullName 'weekly_stage' $Matches[1].Trim('"')
-    }
-}
-foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $reviewRoot)) {
-    $content = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName
-    if ($content -match '(?m)^主题:\s*(.+?)\s*$') {
-        Test-CanonicalValue $file.FullName 'daily_topic' $Matches[1].Trim('"')
-    }
-}
 foreach ($file in @(Get-ChildItem -Recurse -File -Filter '*.md' -LiteralPath $atomicRoot)) {
     $content = Get-Content -Raw -Encoding UTF8 -LiteralPath $file.FullName
     if ($content -match '(?m)^主题:\s*(.+?)\s*$') {
@@ -655,7 +613,9 @@ $result = [pscustomobject]@{
     schema_source = $schemaSource
     markdown_files = $markdown.Count
     curriculum_units = $mainlineUnitIds.Count
-    daily_reviews = $reviewDates.Count
+    learning_logs = @(Get-ChildItem -File -Filter '*.md' -LiteralPath $logRoots['learning'] -ErrorAction SilentlyContinue).Count
+    work_logs = @(Get-ChildItem -File -Filter '*.md' -LiteralPath $logRoots['work'] -ErrorAction SilentlyContinue).Count
+    decision_logs = @(Get-ChildItem -File -Filter '*.md' -LiteralPath $logRoots['decision'] -ErrorAction SilentlyContinue).Count
     atomic_notes = @(Get-ChildItem -Recurse -File -Filter '*.md' -LiteralPath $atomicRoot).Count
     registered_terms = $entries.Count
     schema_defects = $schemaDefects
@@ -665,15 +625,13 @@ $result = [pscustomobject]@{
     duplicate_root_prefixes = $duplicateRootPrefixes
     duplicate_basenames = $duplicates
     broken_links = $brokenLinks
-    invalid_daily_reviews = $invalidDailyReviews
-    daily_template_issues = $dailyTemplateIssues
-    duplicate_review_dates = $duplicateReviewDates
-    invalid_weekly_notes = $invalidWeeklyNotes
+    invalid_learning_logs = $invalidLearningLogs
+    invalid_work_logs = $invalidWorkLogs
+    invalid_decision_logs = $invalidDecisionLogs
     homepage_issues = $homepageIssues
     mainline_issues = $mainlineIssues
     source_contract_issues = $sourceContractIssues
     review_queue_issues = $reviewQueueIssues
-    weekly_template_issues = $weeklyTemplateIssues
     job_requirement_template_issues = $jobRequirementTemplateIssues
     invalid_job_requirement_notes = $invalidJobRequirementNotes
     review_template_issues = $reviewTemplateIssues
@@ -701,8 +659,6 @@ $result = [pscustomobject]@{
         naming_surfaces_checked = (
             2 +
             @([regex]::Matches($mainlineContent, '(?m)^## 阶段[一二三四五六七八九十]+：')).Count +
-            @(Get-ChildItem -File -Filter '*.md' -LiteralPath $weeklyRoot).Count +
-            @(Get-ChildItem -File -Filter '*.md' -LiteralPath $reviewRoot).Count +
             (2 * @(Get-ChildItem -Recurse -File -Filter '*.md' -LiteralPath $atomicRoot).Count) +
             (2 * @(Get-ChildItem -File -Filter '*.md' -LiteralPath $mapRoot).Count) +
             @(Get-ChildItem -File -Filter '*.md' -LiteralPath $reviewBankRoot).Count
@@ -718,15 +674,13 @@ $result = [pscustomobject]@{
         $duplicateRootPrefixes.Count -eq 0 -and
         $duplicates.Count -eq 0 -and
         $brokenLinks.Count -eq 0 -and
-        $invalidDailyReviews.Count -eq 0 -and
-        $dailyTemplateIssues.Count -eq 0 -and
-        $duplicateReviewDates.Count -eq 0 -and
-        $invalidWeeklyNotes.Count -eq 0 -and
+        $invalidLearningLogs.Count -eq 0 -and
+        $invalidWorkLogs.Count -eq 0 -and
+        $invalidDecisionLogs.Count -eq 0 -and
         $homepageIssues.Count -eq 0 -and
         $mainlineIssues.Count -eq 0 -and
         $sourceContractIssues.Count -eq 0 -and
         $reviewQueueIssues.Count -eq 0 -and
-        $weeklyTemplateIssues.Count -eq 0 -and
         $jobRequirementTemplateIssues.Count -eq 0 -and
         $invalidJobRequirementNotes.Count -eq 0 -and
         $reviewTemplateIssues.Count -eq 0 -and
@@ -748,8 +702,8 @@ $result = [pscustomobject]@{
 if ($Diagnostics) {
     $diagnosticFields = @(
         'schema_defects', 'missing_required', 'legacy_paths_present', 'non_markdown_note_files', 'duplicate_root_prefixes',
-        'duplicate_basenames', 'broken_links', 'invalid_daily_reviews', 'daily_template_issues',
-        'duplicate_review_dates', 'invalid_weekly_notes', 'weekly_template_issues', 'homepage_issues',
+        'duplicate_basenames', 'broken_links', 'invalid_learning_logs', 'invalid_work_logs',
+        'invalid_decision_logs', 'homepage_issues',
         'mainline_issues', 'source_contract_issues', 'review_queue_issues', 'review_template_issues',
         'job_requirement_template_issues', 'invalid_job_requirement_notes', 'invalid_atomic_notes',
         'duplicate_atomic_ids', 'invalid_atomic_term_refs', 'atomic_granularity_issues',

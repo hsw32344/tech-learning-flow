@@ -1,6 +1,6 @@
 ---
 name: record-tech-learning
-description: Record verified task activity or explicit review results from an explicitly selected workspace or a factual user report into the fixed tech_vault. Use for 把当前工作区内容装入 vault、学习结束、今天学了、记录任务进度、记录问题、记录练习结果、记录验收结果. Keep daily and weekly logs as factual ledgers without using dates as progress units. Logs record literal facts only and never bind plans, quotas, schedules, or expected outputs. Never create review from ordinary study or move the task route automatically.
+description: Record verified task activity or explicit review results from an explicitly selected workspace or a factual user report into the fixed tech_vault. Use for 把当前工作区内容装入 vault、学习结束、今天学了、记录工作、记录决定、记录任务进度、记录问题、记录练习结果、记录验收结果. Keep event logs as factual ledgers without using dates as progress units. Logs record literal facts only and never bind plans, quotas, schedules, or expected outputs. Never create review from ordinary study or move the task route automatically.
 ---
 
 # Record technical learning
@@ -9,7 +9,7 @@ Record actual activity as literal facts while keeping study input, review attemp
 
 ## When to use
 
-- `学习结束`、`今天学了`、`记录进度`、`记录问题`、source-ingestion results, or a factual user report.
+- `学习结束`、`今天学了`、`记录进度`、`记录问题`、`记录工作`、`记录决定`、source-ingestion results, or a factual user report.
 - Explicit review or assessment results; never reinterpret ordinary study as review, and never create review from study.
 - Logs are ledgers: a record never binds a plan, quota, schedule, expected output, or completion date.
 
@@ -23,24 +23,25 @@ Record actual activity as literal facts while keeping study input, review attemp
 
 ## Minimal reads
 
-- Read `10-术语规范.md`, the target daily/weekly file, relevant atomic notes and IDs, and the homepage facts this role owns.
+- Read `10-术语规范.md`, the target log file (or its directory for a new log), relevant atomic notes and IDs, and the homepage facts this role owns.
 - Read `references/record-storage-contract.md`; do not load the full Vault contract for a factual record.
 - When recording explicit review material or results, read `references/review-policy.md` and `70-复习队列.md`; ordinary records never read the queue.
 - Extend only when: a factual task handoff needs route context, or terminology/ID resolution is ambiguous.
 
 ## Allowed writes
 
-- Learned terminology; cumulative daily reviews; atomic notes actually supported by observed material; actual review records; topic maps; weekly factual sections; homepage `current_week`/`latest_review` and their factual navigation links; queue changes justified by explicit recorded results.
+- Learned terminology; learning, work, and decision logs; atomic notes actually supported by observed material; actual review records; topic maps; homepage `latest_log` and its factual navigation links; queue changes justified by explicit recorded results.
 - Never write route mirrors (`current_stage`/`current_unit`/`current_position`), stage/mainline terminology, snapshots, mastery labels, or review dates outside the derived queue.
-- Review-bank policy: `atomic-mirror` banks are optional. Create or update one only when the user is actually reviewing through a bank; a mirror keeps exactly one `primary_atomic` and an empty `related_atomics`. A single explicit review without a bank is recorded as a fact in the daily review (and weekly section), naming the tested atomic or unit; never create a bank only to satisfy validation or to hold a result.
+- Review-bank policy: `atomic-mirror` banks are optional. Create or update one only when the user is actually reviewing through a bank; a mirror keeps exactly one `primary_atomic` and an empty `related_atomics`. A single explicit review without a bank is recorded as a fact in a learning log, naming the tested atomic or unit; never create a bank only to satisfy validation or to hold a result.
+- Log policy: one log records one actual activity. Learning and work logs require `duration_minutes`: a positive integer of actual minutes, or `时间缺失` after asking once when no reliable duration exists; never estimate and never write `0` for unknown time. Decision logs carry no duration and record the decision, reason, and kept open items.
 - Before a multi-file write, report the exact source, factual delta, proposed artifacts, queue effect, and retained route; wait for confirmation unless execution was already approved.
-- After writing, run the matching validator (`validate-daily/weekly/atomic/reviewbank/queue`); when one batch touches several artifacts run `scripts/validate-change.ps1 -Vault <root> -Kinds <kinds> -Paths <written files>` exactly once instead of one scan per artifact, and commit the source baseline only after it passes.
+- After writing, run the matching validator (`validate-learning/work/decision/atomic/reviewbank/queue`); when one batch touches several artifacts run `scripts/validate-change.ps1 -Vault <root> -Kinds <kinds> -Paths <written files>` exactly once instead of one scan per artifact, and commit the source baseline only after it passes.
 - A delete or rename is declared explicitly (`-Operation delete|rename`, plus `-OldPath`, and `-OldIdentity` when an atomic ID changes); mixed batches use `-ChangeSet "operation|path[|old_path[|old_identity]]"`. A missing path is never guessed as a delete, and every declared target must be covered by the selected kinds. Action validators use the registered targets and dependencies only; unrelated historical Vault defects do not block the recorded fact.
 
 ## Handoff
 
 - Route movement justified by a factual handoff -> `direct-tech-learning`; continued study -> `study-tech-learning`; explicit practice -> `review-tech-learning`; focused questions -> `answer-tech-learning`; raw HR/JD -> `analyze-job-requirements`.
-- Weekly/daily boundaries never move or reset the task route.
+- Date and log boundaries never move or reset the task route.
 
 ## Done check
 

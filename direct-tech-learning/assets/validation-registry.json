@@ -7,8 +7,9 @@
     "homepage": ["00-首页.md"],
     "topicmap": ["50-主题地图"],
     "atomic": ["40-原子知识"],
-    "daily": ["30-学习日志/学习回顾"],
-    "weekly": ["30-学习日志/每周"],
+    "learning": ["30-日志/学习"],
+    "work": ["30-日志/工作"],
+    "decision": ["30-日志/决定"],
     "reviewbank": ["60-复习"],
     "queue": ["70-复习队列.md"],
     "jobnote": ["20-学习主线/岗位分析"],
@@ -32,19 +33,27 @@
       "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
     },
     {
-      "id": "daily-record",
+      "id": "learning-record",
       "skills": ["record-tech-learning"],
-      "kinds": ["daily"],
-      "writes": ["30-学习日志/学习回顾"],
-      "default_paths": ["30-学习日志/学习回顾"],
+      "kinds": ["learning"],
+      "writes": ["30-日志/学习"],
+      "default_paths": ["30-日志/学习"],
       "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
     },
     {
-      "id": "weekly-record",
+      "id": "work-record",
       "skills": ["record-tech-learning"],
-      "kinds": ["weekly"],
-      "writes": ["30-学习日志/每周"],
-      "default_paths": ["30-学习日志/每周"],
+      "kinds": ["work"],
+      "writes": ["30-日志/工作"],
+      "default_paths": ["30-日志/工作"],
+      "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
+    },
+    {
+      "id": "decision-record",
+      "skills": ["record-tech-learning"],
+      "kinds": ["decision"],
+      "writes": ["30-日志/决定"],
+      "default_paths": ["30-日志/决定"],
       "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
     },
     {
@@ -75,7 +84,7 @@
       "id": "homepage-facts",
       "skills": ["record-tech-learning"],
       "kinds": ["homepage"],
-      "writes": ["00-首页.md current_week, latest_review, and factual navigation links"],
+      "writes": ["00-首页.md latest_log and factual navigation links"],
       "default_paths": ["00-首页.md"],
       "dependencies": ["vault-contract.ps1", "vault-rules.ps1", "validate-scope.ps1", "validate-change.ps1", "validation-registry.ps1"]
     },

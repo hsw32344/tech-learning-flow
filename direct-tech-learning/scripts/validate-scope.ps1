@@ -147,17 +147,6 @@ function Get-ScopeIndex {
             }
         }
     }
-    $dailyRecords = @()
-    if ($Kinds -contains 'daily') {
-        $dailyRoot = Join-Path $VaultRoot '30-学习日志\学习回顾'
-        if (Test-Path -LiteralPath $dailyRoot -PathType Container) {
-            foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $dailyRoot)) {
-                $date = $null
-                if ($file.BaseName -match '^(\d{4}-\d{2}-\d{2}) 学习回顾$') { $date = $Matches[1] }
-                $dailyRecords += [pscustomobject]@{ path = $file.FullName; date = $date }
-            }
-        }
-    }
     $terminologyEntries = @()
     if ($Kinds -contains 'atomic' -or $Kinds -contains 'topicmap') {
         $terminologyEntries = @(Get-ScopeTerminologyEntries -VaultRoot $VaultRoot)
@@ -169,7 +158,6 @@ function Get-ScopeIndex {
         content_paths       = $contentPaths
         atomic_records      = $atomicRecords
         review_records      = $reviewRecords
-        daily_records       = $dailyRecords
         terminology_entries = $terminologyEntries
     }
 }
@@ -214,9 +202,8 @@ function Get-ScopeRouteDiagnostics {
     $stageText = (@(Get-ChildItem -LiteralPath $stageRoot -File -Filter '*.md' | Sort-Object Name |
                 ForEach-Object { Get-ScopeContent -Path $_.FullName }) -join "`n")
 
-    $weeklyRoot = Join-Path $VaultRoot '30-学习日志\每周'
     $structureIssues = @(Get-RouteStructureRuleIssues -HomepageContent $homepage -MainlineContent $mainline `
-            -Schema $Schema -WeeklyRoot $weeklyRoot)
+            -Schema $Schema -VaultRoot $VaultRoot)
     $stageIssues = @(Get-StageOrderingRuleIssues -StageContent $stageText -TaskRegistryContent $taskRegistry)
     $registryEntries = @([regex]::Matches($sourceRegistry, $RegistryEntryPattern))
     $unitIds = @([regex]::Matches($taskRegistry, $UnitRowPattern) | ForEach-Object { $_.Groups['id'].Value })
@@ -249,7 +236,7 @@ function Get-ScopeHomepageDiagnostics {
         return @(New-ScopeDiagnostic -Field 'missing_required' -Item $path)
     }
     $content = Get-ScopeContent -Path $path
-    $properties = @('type', 'current_week', 'latest_review')
+    $properties = @('type', 'latest_log')
     if ($null -ne $Schema -and $Schema.PSObject.Properties['files'] -and
         $Schema.files.PSObject.Properties['00-首页.md'] -and
         $Schema.files.'00-首页.md'.PSObject.Properties['properties']) {
@@ -260,11 +247,16 @@ function Get-ScopeHomepageDiagnostics {
             $diags += New-ScopeDiagnostic -Field 'homepage_issues' -Item "missing property: $property"
         }
     }
-    $currentWeek = [regex]::Match($content, '(?m)^current_week\s*:\s*(?<value>\d{4}-W\d{2})\s*$')
-    if ($currentWeek.Success) {
-        $weeklyPath = Join-Path $VaultRoot ('30-学习日志\每周\' + $currentWeek.Groups['value'].Value + '.md')
-        if (-not (Test-Path -LiteralPath $weeklyPath -PathType Leaf)) {
-            $diags += New-ScopeDiagnostic -Field 'homepage_issues' -Item "current_week note missing: $($currentWeek.Groups['value'].Value)"
+    $latestLog = [regex]::Match($content, '(?m)^latest_log\s*:\s*"?\[\[(?<target>[^\]|#]+)')
+    if ($latestLog.Success) {
+        $target = $latestLog.Groups['target'].Value.Trim()
+        $found = $false
+        foreach ($variant in @($target, "$target.md")) {
+            $candidate = Join-Path $VaultRoot ($variant -replace '/', '\')
+            if (Test-Path -LiteralPath $candidate -PathType Leaf) { $found = $true; break }
+        }
+        if (-not $found) {
+            $diags += New-ScopeDiagnostic -Field 'homepage_issues' -Item "latest_log target missing: $target"
         }
     }
     return $diags
@@ -394,53 +386,30 @@ function Get-ScopeKindDiagnostics {
         'topicmap' {
             $diags += @(Get-ScopeTopicMapDiagnostics -Index $Index -RelatedTargets $RelatedTargets)
         }
-        'daily' {
+        'learning' {
             foreach ($path in $existing) {
                 $content = Get-ScopeContent -Path $path
-                $issues = @(Get-DailyReviewIssues -Content $content -BaseName ([IO.Path]::GetFileNameWithoutExtension($path)))
+                $issues = @(Get-LogNoteIssues -Content $content -BaseName ([IO.Path]::GetFileNameWithoutExtension($path)) -Kind 'learning')
                 if ($issues.Count -gt 0) {
-                    $diags += New-ScopeDiagnostic -Field 'invalid_daily_reviews' -Item ([pscustomobject]@{ path = $path; issues = $issues })
-                }
-            }
-            $changedDates = @{}
-            foreach ($path in $existing) {
-                $record = @($Index.daily_records | Where-Object { $_.path -eq $path }) | Select-Object -First 1
-                if ($record -and $record.date) { $changedDates[$record.date] = $true }
-            }
-            foreach ($date in $changedDates.Keys) {
-                $paths = @($Index.daily_records | Where-Object { $_.date -eq $date } | ForEach-Object { $_.path })
-                if ($paths.Count -gt 1) {
-                    $diags += New-ScopeDiagnostic -Field 'duplicate_review_dates' -Item ([pscustomobject]@{ date = $date; paths = $paths })
-                }
-            }
-            $template = Join-Path $VaultRoot '90-模板\学习回顾模板.md'
-            if (Test-Path -LiteralPath $template -PathType Leaf) {
-                foreach ($issue in @(Get-DailyTemplateIssues -Content (Get-ScopeContent -Path $template))) {
-                    $diags += New-ScopeDiagnostic -Field 'daily_template_issues' -Item $issue
+                    $diags += New-ScopeDiagnostic -Field 'invalid_learning_logs' -Item ([pscustomobject]@{ path = $path; issues = $issues })
                 }
             }
         }
-        'weekly' {
-            $properties = @()
-            $headings = @()
-            $statusEnum = @()
-            if ($null -ne $Schema -and $Schema.PSObject.Properties['weekly']) {
-                if ($Schema.weekly.PSObject.Properties['properties']) { $properties = @($Schema.weekly.properties) }
-                if ($Schema.weekly.PSObject.Properties['headings']) { $headings = @($Schema.weekly.headings) }
-                if ($Schema.weekly.PSObject.Properties['status_enum']) { $statusEnum = @($Schema.weekly.status_enum) }
-            }
+        'work' {
             foreach ($path in $existing) {
                 $content = Get-ScopeContent -Path $path
-                $issues = @(Get-WeeklyNoteIssues -Content $content -BaseName ([IO.Path]::GetFileNameWithoutExtension($path)) `
-                        -Properties $properties -Headings $headings -StatusEnum $statusEnum)
+                $issues = @(Get-LogNoteIssues -Content $content -BaseName ([IO.Path]::GetFileNameWithoutExtension($path)) -Kind 'work')
                 if ($issues.Count -gt 0) {
-                    $diags += New-ScopeDiagnostic -Field 'invalid_weekly_notes' -Item ([pscustomobject]@{ path = $path; issues = $issues })
+                    $diags += New-ScopeDiagnostic -Field 'invalid_work_logs' -Item ([pscustomobject]@{ path = $path; issues = $issues })
                 }
             }
-            $template = Join-Path $VaultRoot '90-模板\每周学习复盘模板.md'
-            if (Test-Path -LiteralPath $template -PathType Leaf) {
-                foreach ($issue in @(Get-WeeklyTemplateIssues -Content (Get-ScopeContent -Path $template) -Properties $properties -Headings $headings)) {
-                    $diags += New-ScopeDiagnostic -Field 'weekly_template_issues' -Item $issue
+        }
+        'decision' {
+            foreach ($path in $existing) {
+                $content = Get-ScopeContent -Path $path
+                $issues = @(Get-LogNoteIssues -Content $content -BaseName ([IO.Path]::GetFileNameWithoutExtension($path)) -Kind 'decision')
+                if ($issues.Count -gt 0) {
+                    $diags += New-ScopeDiagnostic -Field 'invalid_decision_logs' -Item ([pscustomobject]@{ path = $path; issues = $issues })
                 }
             }
         }

@@ -28,7 +28,7 @@ Turn user-supplied job requirements into a traceable, evidence-bounded mainline 
 ## Allowed writes
 
 - Nothing by default. When the user explicitly asks to save: one note under `20-学习主线/岗位分析/` from `90-模板/岗位需求分析模板.md`, `type: job-requirement-analysis`, after previewing the exact filename and retained source text and getting confirmation.
-- Never edit `20-学习主线/`, `10-术语规范.md`, `00-首页.md`, weekly ledgers, or task progress directly.
+- Never edit `20-学习主线/`, `10-术语规范.md`, `00-首页.md`, event logs, or task progress directly.
 
 ## Handoff
 

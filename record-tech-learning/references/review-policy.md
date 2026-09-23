@@ -4,7 +4,7 @@ Use this reference when reading or updating `70-复习队列.md`.
 
 ## Separation
 
-- Review banks, daily reviews, and weekly factual sections contain actual attempts and outcomes.
+- Review banks and learning logs contain actual attempts and outcomes.
 - `70-复习队列.md` contains derived operational state only.
 - Generated questions, dates, explanations, planned sessions, and queue entries are not evidence.
 - Never write a mastery label.
@@ -12,7 +12,7 @@ Use this reference when reading or updating `70-复习队列.md`.
 ## Bank taxonomy and mirror coverage
 
 - `atomic-mirror` is optional. When one exists it has `related_atomics: []` and tests that atomic note's own question; exactly one mirror may claim an atomic ID.
-- An explicit review of an atomic without a mirror bank records its facts in the daily and weekly record, naming the tested atomic; never create a bank only to hold a result.
+- An explicit review of an atomic without a mirror bank records its facts in a learning log, naming the tested atomic; never create a bank only to hold a result.
 - Extra banks are permitted only as `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`. They must name one or more `related_atomics` or `task_units`, and never require a mirror for the referenced atoms.
 - An extra bank supplements, never replaces, an atomic mirror. A prompt bank is not an attempt record and does not activate the queue.
 - Keep actual learner attempts only under the review-record heading; generated questions and expected checks remain blank until the learner acts.

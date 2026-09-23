@@ -11,7 +11,7 @@ Review does not expand into a new curriculum block, write evidence, update the q
 Path: `60-复习/<规范核心对象或代码写法> - <测试目标>复习.md`.
 
 - `atomic-mirror` banks are optional. When a note's review material or results are organized as a mirror bank, exactly one bank with `review_kind: atomic-mirror` and `primary_atomic: <atomic_id>` claims it; it uses `related_atomics: []` and tests the same atomic question. Never create a bank only to hold one result.
-- An explicit review without a bank records its facts in the daily learning review and the weekly section, naming the tested `atomic_id` or task unit; the queue may cite that factual record instead of a bank.
+- An explicit review without a bank records its facts in a learning log, naming the tested `atomic_id` or task unit; the queue may cite that factual record instead of a bank.
 - Additional review banks may use `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`, and must declare at least one `related_atomics` or `task_units` value. Extra banks never require a mirror for their references.
 - An atomic mirror may declare only one `primary_atomic`; one atomic ID cannot be claimed by two mirrors. Every declared atomic reference must resolve to an existing atomic note.
 - Prefer three verification surfaces: causal prediction, fault localization, and changed-context transfer.
@@ -31,6 +31,6 @@ Required headings:
 4. `## 已退出活跃队列`
 5. `## 最近更新依据`
 
-The queue is derived operational state, not evidence. Actual attempts remain under review-bank `## 复习记录`, daily reviews, and weekly factual sections. `record-tech-learning` updates the queue only after recording actual explicit review or assessment results. Ordinary study never creates, activates, schedules, or advances queue items.
+The queue is derived operational state, not evidence. Actual attempts remain under review-bank `## 复习记录` and learning logs. `record-tech-learning` updates the queue only after recording actual explicit review or assessment results. Ordinary study never creates, activates, schedules, or advances queue items.
 
 The available verification progression is causal prediction -> fault localization -> context transfer -> retention check. It is used only inside user-selected review mode and is never a task-progress or task-completion gate. Generated questions, suggested dates, and queue entries never prove learning. Do not write mastery labels.

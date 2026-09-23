@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$Vault,
     [string]$Path
@@ -7,5 +7,5 @@ param(
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 
-& (Join-Path $PSScriptRoot 'validate-action.ps1') -Vault $Vault -Action 'daily-record' -Path $Path
+& (Join-Path $PSScriptRoot 'validate-action.ps1') -Vault $Vault -Action 'decision-record' -Path $Path
 exit $LASTEXITCODE

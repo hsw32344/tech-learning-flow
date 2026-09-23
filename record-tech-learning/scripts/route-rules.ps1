@@ -58,7 +58,7 @@ function Get-RouteStructureRuleIssues {
         [Parameter(Mandatory = $true)][string]$HomepageContent,
         [Parameter(Mandatory = $true)][string]$MainlineContent,
         $Schema,
-        [Parameter(Mandatory = $true)][string]$WeeklyRoot
+        [Parameter(Mandatory = $true)][string]$VaultRoot
     )
     $issues = @()
     $homepageProperties = @('type', 'current_stage', 'current_unit', 'current_position')
@@ -111,11 +111,16 @@ function Get-RouteStructureRuleIssues {
             }
         }
     }
-    $currentWeekMatch = [regex]::Match($HomepageContent, '(?m)^current_week\s*:\s*(?<value>\d{4}-W\d{2})\s*$')
-    if ($currentWeekMatch.Success) {
-        $currentWeekValue = $currentWeekMatch.Groups['value'].Value
-        if (-not (Test-Path -LiteralPath (Join-Path $WeeklyRoot "$currentWeekValue.md") -PathType Leaf)) {
-            $issues += [pscustomobject]@{ field = 'homepage_issues'; message = "current_week note missing: $currentWeekValue" }
+    $latestLogMatch = [regex]::Match($HomepageContent, '(?m)^latest_log\s*:\s*"?\[\[(?<target>[^\]|#]+)')
+    if ($latestLogMatch.Success) {
+        $target = $latestLogMatch.Groups['target'].Value.Trim()
+        $found = $false
+        foreach ($variant in @($target, "$target.md")) {
+            $candidate = Join-Path $VaultRoot ($variant -replace '/', '\')
+            if (Test-Path -LiteralPath $candidate -PathType Leaf) { $found = $true; break }
+        }
+        if (-not $found) {
+            $issues += [pscustomobject]@{ field = 'homepage_issues'; message = "latest_log target missing: $target" }
         }
     }
     return $issues

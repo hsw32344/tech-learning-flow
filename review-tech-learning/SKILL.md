@@ -30,7 +30,7 @@ Run practice and assessment only after the user explicitly chooses this mode.
 
 ## Allowed writes
 
-- None to the Vault: never update review records, queue, weekly facts, mainline, position, evidence, or terminology.
+- None to the Vault: never update review records, queue, logs, mainline, position, evidence, or terminology.
 - Generated questions, expected answers, tests, and dates are not evidence and stay out of the Vault.
 
 ## Handoff

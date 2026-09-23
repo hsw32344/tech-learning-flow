@@ -85,11 +85,9 @@ $script:VaultIssueMeta = @{
     'duplicate_root_prefixes'         = @{ code = 'DUPLICATE_ROOT_PREFIX';     category = 'structure';   severity = 'error' }
     'duplicate_basenames'             = @{ code = 'DUPLICATE_BASENAME';        category = 'structure';   severity = 'error' }
     'broken_links'                    = @{ code = 'BROKEN_LINK';               category = 'links';       severity = 'error' }
-    'invalid_daily_reviews'           = @{ code = 'INVALID_DAILY_REVIEW';      category = 'daily';       severity = 'error' }
-    'daily_template_issues'           = @{ code = 'DAILY_TEMPLATE_ISSUE';      category = 'daily';       severity = 'error' }
-    'duplicate_review_dates'          = @{ code = 'DUPLICATE_REVIEW_DATE';     category = 'daily';       severity = 'error' }
-    'invalid_weekly_notes'            = @{ code = 'INVALID_WEEKLY_NOTE';       category = 'weekly';      severity = 'error' }
-    'weekly_template_issues'          = @{ code = 'WEEKLY_TEMPLATE_ISSUE';     category = 'weekly';      severity = 'error' }
+    'invalid_learning_logs'           = @{ code = 'INVALID_LEARNING_LOG';      category = 'learning';    severity = 'error' }
+    'invalid_work_logs'               = @{ code = 'INVALID_WORK_LOG';          category = 'work';        severity = 'error' }
+    'invalid_decision_logs'           = @{ code = 'INVALID_DECISION_LOG';      category = 'decision';    severity = 'error' }
     'homepage_issues'                 = @{ code = 'HOMEPAGE_ISSUE';            category = 'route';       severity = 'error' }
     'mainline_issues'                 = @{ code = 'MAINLINE_ISSUE';            category = 'route';       severity = 'error' }
     'source_contract_issues'          = @{ code = 'SOURCE_CONTRACT_ISSUE';     category = 'sources';     severity = 'error' }
@@ -128,8 +126,9 @@ $script:VaultKindFields = @{
     'terminology' = @{ errorFields = @('terminology_issues', 'orphan_parent_terms'); warningFields = @('unregistered_term_surfaces', 'deprecated_alias_hits') }
     'homepage'    = @{ errorFields = @('homepage_issues'); warningFields = @() }
     'topicmap'    = @{ errorFields = @('terminology_issues'); warningFields = @('unregistered_term_surfaces') }
-    'daily'       = @{ errorFields = @('invalid_daily_reviews', 'daily_template_issues', 'duplicate_review_dates'); warningFields = @() }
-    'weekly'      = @{ errorFields = @('invalid_weekly_notes', 'weekly_template_issues'); warningFields = @() }
+    'learning'    = @{ errorFields = @('invalid_learning_logs'); warningFields = @() }
+    'work'        = @{ errorFields = @('invalid_work_logs'); warningFields = @() }
+    'decision'    = @{ errorFields = @('invalid_decision_logs'); warningFields = @() }
     'atomic'      = @{ errorFields = @('invalid_atomic_notes', 'duplicate_atomic_ids', 'invalid_atomic_term_refs', 'atomic_granularity_issues'); warningFields = @() }
     'reviewbank'  = @{ errorFields = @('invalid_review_banks', 'duplicate_atomic_mirrors', 'orphan_review_atomic_refs'); warningFields = @('atomic_mirror_gaps') }
     'queue'       = @{ errorFields = @('review_queue_issues', 'review_template_issues'); warningFields = @() }

@@ -39,25 +39,25 @@ When a request needs an undeclared structure:
 |---|---|---|
 | Source-backed task mainline, task-package unit IDs, primary/gap learning-source roles, confirmed stage, current task and position, plus their homepage mirrors | `direct-tech-learning` | read only |
 | Terminology rows for stages and mainline nodes | `direct-tech-learning` | read only |
-| Weekly and daily factual ledgers | `record-tech-learning` | route state is read only |
+| Learning, work, and decision event logs | `record-tech-learning` | route state is read only |
 | Markdown source packet for one task slice, with `verified` / `partial` / `blocked` evidence status | `load-tech-learning-source`, conversation | never stored as learning evidence; distinct from JSON material/study contexts |
 | Task-first input, explanation, examples, minimum useful artifact and study handoff | `study-tech-learning`, conversation or explicit source artifact | generated content is not learning evidence |
 | One cumulative learning snapshot per task package | `study-tech-learning`, `25-资源区/学习快照/<unit-id> 学习快照.md` | other Skills read only; never route or evidence state |
 | Explicit practice, review and assessment packet | `review-tech-learning`, conversation or explicit source artifact | never stored in the Vault |
 | Technical explanation and explicitly requested source edits | `answer-tech-learning` | no Vault state change |
 | User-supplied HR/JD analysis, requirement-source notes, mainline mapping, and route-change handoffs | `analyze-job-requirements` | `direct-tech-learning` receives confirmed route changes; others read only |
-| Source delta, daily review, atomic knowledge, review banks and factual weekly evidence | `record-tech-learning` | read only |
+| Source delta, event logs, atomic knowledge, and review banks | `record-tech-learning` | read only |
 | Review queue derived from actual explicit review/assessment attempts | `record-tech-learning` | `direct-tech-learning` and `review-tech-learning` read only |
-| Topic maps, homepage current week/latest review, learned-concept terminology | `record-tech-learning` | read only |
+| Topic maps, homepage latest log link, learned-concept terminology | `record-tech-learning` | read only |
 
 There is no milestone index, problem board, project index, source index, mastery ledger, or generated-question evidence.
 
 ## Homepage projection ownership
 
-- `direct-tech-learning` owns `current_stage`, task-package `current_unit`, `current_position`, `stage_directions`, and the matching display text under `## 当前学习主线` in `00-首页.md`. It updates these mirrors in the same confirmed write as the mainline state and preserves `current_week` and `latest_review`.
-- `current_week` retains its compatibility field name but points to the latest recorded week, not necessarily the current calendar week. Display it under `## 最近周记录`; never create a new week merely because the date changed.
-- `record-tech-learning` owns only `current_week`, `latest_review`, and the corresponding factual navigation links on the homepage. It preserves all route mirrors owned by `direct-tech-learning`.
-- The homepage route mirrors must agree with `20-学习主线/00-总览.md`. Weekly and daily ledgers may describe historical stage context but never mirror, select, advance, complete, or block the current task.
+- `direct-tech-learning` owns `current_stage`, task-package `current_unit`, `current_position`, `stage_directions`, and the matching display text under `## 当前学习主线` in `00-首页.md`. It updates these mirrors in the same confirmed write as the mainline state and preserves `latest_log`.
+- `latest_log` points to the most recent event log under `30-日志/`; display it under `## 最近记录`. Never create a log merely because a date changed.
+- `record-tech-learning` owns only `latest_log` and the corresponding factual navigation links on the homepage. It preserves all route mirrors owned by `direct-tech-learning`.
+- The homepage route mirrors must agree with `20-学习主线/00-总览.md`. Event logs may describe historical stage context but never mirror, select, advance, complete, or block the current task.
 
 ## Handoff order
 
@@ -100,45 +100,29 @@ Path: `20-学习主线/岗位分析/`.
 
 One job source describes that job only. Repeated demand requires distinct sources. Job text never proves learning, capability, market prevalence, or achieved KPI. The analyzer prepares route-change handoffs; `direct-tech-learning` remains the sole writer of the mainline, stage terminology, homepage route mirrors, and current task state.
 
-## Weekly factual ledger
+## Event logs
 
-Path: `30-学习日志/每周/YYYY-Www.md`.
+Paths: `30-日志/学习/`, `30-日志/工作/`, and `30-日志/决定/`. Migrated originals live under `30-日志/历史/` as historical records and are never re-validated as new logs.
 
-Required properties:
+One log records one actual activity: a study activity, a work or practice activity, or a decision. Several logs may share a date; a log never binds a plan, quota, schedule, expected output, or completion date, and the system never plans in days or weeks. The only planning unit is the study slice, owned by study, never by a log.
+
+Filename: `YYYY-MM-DD-<topic>.md`. Required properties:
 
 ```yaml
 ---
-type: weekly-learning-review
-week: YYYY-Www
-start: YYYY-MM-DD
-end: YYYY-MM-DD
-study_days: 0
-total_minutes: 0
-stage:
-stage_directions: []
-status: 进行中
+type: learning-log | work-log | decision-log
+date: YYYY-MM-DD
+duration_minutes: 30 | 时间缺失   # learning/work only
+tags: []
 ---
 ```
 
-Allowed `status` values are `进行中` and `已结束`. Closing an old week changes only its status; it never rewrites factual sections.
-
-Required headings:
-
-1. `## 任务流转`
-2. `## 实际学习记录`
-3. `## 已收敛知识`
-4. `## 复习证据`
-5. `## 能力证据`
-6. `## 整理结论`
-7. `## 前进方向`
-
-`record-tech-learning` owns the complete weekly ledger. Logs are literal records only: a ledger never binds a plan, quota, schedule, expected output, or completion date, and the system never plans in days or weeks. The only planning unit is the study slice, owned by study, never by a log. `## 任务流转` records only actual dated work against task-package unit IDs, for example:
-
-```markdown
-- YYYY-MM-DD｜`<unit-id>`｜<开始/继续/暂停/已形成事实产物>｜<reported artifact or stopping point>
-```
-
-Every current task ID must map to a source-backed mainline unit. One task may appear across multiple dates and one date may contain multiple task entries. These relations record facts only and never change route progress. `stage` and `stage_directions` preserve the factual context for that week; they are not mirrors of current route state. `study_days` and `total_minutes` summarize reported activity; unknown duration remains unknown. `## 前进方向` may state only an evidence-bounded stopping point or unknown. Historical files may contain legacy plan fields; treat them as historical facts and neither require nor validate them.
+- `type` matches the directory: `learning-log` under `30-日志/学习/`, `work-log` under `30-日志/工作/`, `decision-log` under `30-日志/决定/`.
+- `date` must match both the filename date and the actual activity date.
+- Learning and work logs require `duration_minutes`: a positive integer of actual minutes, or the literal `时间缺失` when the user was asked and no reliable duration could be reported. Never estimate and never write `0` for unknown time. Decision logs do not carry a duration.
+- A stage or mainline-priority switch is a decision log: date, from where to where, the reason, and open items kept. `20-学习主线` and the homepage remain the sole authority for the current route; a decision log preserves history and never re-selects, advances, or blocks a task.
+- Keep the body a factual account of what was actually done; link task packages, projects, sources, or artifacts only when factual. Exclude ingestion narration, stale output, generated contexts/source packets, schedules, and environment residue.
+- Statistics treat `时间缺失` as a missing value: the log counts as an activity but is excluded from total and average minutes, and summaries report how many logs have a missing duration.
 
 ## Study execution
 
@@ -207,22 +191,9 @@ Required headings:
 4. `## 已退出活跃队列`
 5. `## 最近更新依据`
 
-The queue is derived operational state, not evidence. Actual attempts remain under review-bank `## 复习记录`, daily reviews, and weekly factual sections. `record-tech-learning` updates the queue only after recording actual explicit review or assessment results. Ordinary study never creates, activates, schedules, or advances queue items.
+The queue is derived operational state, not evidence. Actual attempts remain under review-bank `## 复习记录` and learning logs. `record-tech-learning` updates the queue only after recording actual explicit review or assessment results. Ordinary study never creates, activates, schedules, or advances queue items.
 
 The available verification progression is causal prediction -> fault localization -> context transfer -> retention check. It is used only inside user-selected review mode and is never a task-progress or task-completion gate. Generated questions, suggested dates, and queue entries never prove learning. Do not write mastery labels.
-
-## Daily learning review
-
-Path: `30-学习日志/学习回顾/YYYY-MM-DD 学习回顾.md`.
-
-Use exactly one review per date and append later activity in actual order. Required headings:
-
-1. `## 今日学习过程`
-2. `## 今日形成的理解`
-3. `## 今日知识沉淀`
-4. `## 今日遇到的问题`
-
-Record what the learner did, predicted, implemented, ran, observed, corrected, explained, or failed to complete, naming relevant task-package unit IDs when known. One task may continue across daily records and one daily record may contain multiple tasks. Exclude ingestion narration, stale output, generated contexts/source packets, schedules, and environment residue. Daily records never move task progress.
 
 ## Atomic knowledge
 
@@ -239,7 +210,7 @@ Split a note when it serves two separately retrievable topics or needs two indep
 Path: `60-复习/<规范核心对象或代码写法> - <测试目标>复习.md`.
 
 - `atomic-mirror` banks are optional. When a note's review material or results are organized as a mirror bank, exactly one bank with `review_kind: atomic-mirror` and `primary_atomic: <atomic_id>` claims it; it uses `related_atomics: []` and tests the same atomic question. Never create a bank only to hold one result.
-- An explicit review without a bank records its facts in the daily learning review and the weekly section, naming the tested `atomic_id` or task unit; the queue may cite that factual record instead of a bank.
+- An explicit review without a bank records its facts in a learning log, naming the tested `atomic_id` or task unit; the queue may cite that factual record instead of a bank.
 - Additional review banks may use `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`, and must declare at least one `related_atomics` or `task_units` value. Extra banks never require a mirror for their references.
 - An atomic mirror may declare only one `primary_atomic`; one atomic ID cannot be claimed by two mirrors. Every declared atomic reference must resolve to an existing atomic note.
 - Prefer three verification surfaces: causal prediction, fault localization, and changed-context transfer.
@@ -268,9 +239,9 @@ Use `scripts/detect-delta.ps1` for incremental ingestion. Store state under `%US
 
 The Vault is intentionally lightweight and extensible. Only the routing core is constrained: the homepage, the mainline, and `current_unit`. Everything else is optional or freeform.
 
-- Enforced by default (core check): every prescribed path exists (`00-首页.md`, `10-术语规范.md`, `15-自由笔记/`, `20-学习主线/`, `25-资源区/`, `30-学习日志/每周/`, `30-学习日志/学习回顾/`, `40-原子知识/`, `50-主题地图/`, `60-复习/`, `70-复习队列.md`, `90-模板/`, `97-临时/`, `99-附件/`); the homepage has `type/current_stage/current_unit/current_position`; the mainline overview has `type/current_unit`; `current_unit` is declared in the mainline. A schema that lacks its required path list fails the core check explicitly. Core only proves the Vault is complete and routable/writable — it never judges freeform content.
+- Enforced by default (core check): every prescribed path exists (`00-首页.md`, `10-术语规范.md`, `15-自由笔记/`, `20-学习主线/`, `25-资源区/`, `30-日志/学习/`, `30-日志/工作/`, `30-日志/决定/`, `40-原子知识/`, `50-主题地图/`, `60-复习/`, `70-复习队列.md`, `90-模板/`, `97-临时/`, `99-附件/`); the homepage has `type/current_stage/current_unit/current_position`; the mainline overview has `type/current_unit`; `current_unit` is declared in the mainline. A schema that lacks its required path list fails the core check explicitly. Core only proves the Vault is complete and routable/writable — it never judges freeform content.
 - Root numeric prefix uniqueness is enforced only with `-Strict`; a `.tech-vault.json` schema_version mismatch is reported as a warning, never as a core failure.
-- Enforced only with `-Strict`: terminology, weekly/daily logs, atomic notes, topic maps, review banks and queue, snapshots, templates, and source-declaration formatting.
+- Enforced only with `-Strict`: terminology, event logs, atomic notes, topic maps, review banks and queue, snapshots, templates, and source-declaration formatting.
 - Never validated: `15-自由笔记/` (notes, search results, reflections, ideas) and `25-资源区/外部/` (other people's projects and external sources with their reading notes). Both are freeform; the user or a skill may add any Markdown or supporting files there. `25-资源区/学习快照/` holds per-unit snapshots; `97-临时/` holds scratch draft/review files. All are provenance and personal material, never learner evidence, route state, or capability proof.
 
 ## Canonical paths
@@ -282,8 +253,10 @@ The Vault is intentionally lightweight and extensible. Only the routing core is 
 | `15-自由笔记/` | Freeform notes, search results, reflections, ideas; never validated |
 | `20-学习主线/` | Source-backed curriculum and position: `00-总览.md`, `10-阶段/`, `20-任务包注册表.md`, `资料来源注册表.md`, `岗位分析/` |
 | `25-资源区/` | Resource area: `学习快照/` stores per-unit snapshots (study writes), `外部/` holds other people's projects and external sources (never validated) |
-| `30-学习日志/每周/` | Weekly factual ledgers |
-| `30-学习日志/学习回顾/` | Cumulative daily facts |
+| `30-日志/学习/` | Study activity logs |
+| `30-日志/工作/` | Work and practice logs |
+| `30-日志/决定/` | Decision logs |
+| `30-日志/历史/` | Migrated originals; history, never re-validated |
 | `40-原子知识/` | Independently retrievable knowledge |
 | `50-主题地图/` | Link maps |
 | `60-复习/` | Long-lived review banks |
@@ -292,15 +265,15 @@ The Vault is intentionally lightweight and extensible. Only the routing core is 
 | `97-临时/` | Scratch draft/review files; never validated |
 | `99-附件/` | Supporting files |
 
-Root numeric prefixes must remain unique. Allowed note types include `home`, `terminology-standard`, `learning-mainline`, `weekly-learning-review`, `学习回顾`, `原子知识点`, `复习题`, `topic-map`, `review-queue`, `learning-snapshot-guide`, `learning-snapshot`, `attachment-index`, `job-requirement-analysis`, and `template`.
+Root numeric prefixes must remain unique. Allowed note types include `home`, `terminology-standard`, `learning-mainline`, `learning-log`, `work-log`, `decision-log`, `原子知识点`, `复习题`, `topic-map`, `review-queue`, `learning-snapshot-guide`, `learning-snapshot`, `attachment-index`, `job-requirement-analysis`, and `template`.
 
 ## Linking and validation
 
 - Use Wiki links inside the validator-indexed Vault. Learning snapshots follow the relative Markdown-link exception in `25-资源区/学习快照/学习快照使用说明.md`.
 - Read every target before writing and preserve other Skills' fields.
 - Use `apply_patch` for Markdown edits.
-- Validate required paths and headings, unit IDs and sources, queue structure, daily uniqueness, atomic-note structure, duplicate basenames, Wiki links, terminology integrity, naming surfaces, and deprecated aliases.
-- Writers validate their own artifacts with the matching action script: `validate-route.ps1` and `validate-terminology.ps1` (direct), `validate-daily.ps1` / `validate-weekly.ps1` / `validate-atomic.ps1` / `validate-reviewbank.ps1` / `validate-queue.ps1` (record), `validate-jobnote.ps1` (analyze), `validate-snapshot.ps1` (study snapshots), `check-draft.py` (study drafts). `shared/assets/validation-registry.json` is the authority for each action's targets, kinds, write surface, and runtime dependencies; standalone validators are registered there separately. A change must declare its operation: an update or creation target must exist, a delete must be absent, a rename needs its old path, and an atomic delete needs its old identity; a missing path is never guessed as a delete. Every declared target must be covered by a selected kind, and an explicit action path must stay inside that action's write surface. A multi-artifact write batch runs `validate-change.ps1` once with the affected kinds and paths, `-Action`, or a mixed `-ChangeSet`. If its scope cannot be computed, it fails explicitly rather than silently running a full audit. `validate-vault.ps1 -Strict` remains the separate full composed audit and is available only from `direct-tech-learning`.
+- Validate required paths and headings, unit IDs and sources, queue structure, event-log structure, atomic-note structure, duplicate basenames, Wiki links, terminology integrity, naming surfaces, and deprecated aliases.
+- Writers validate their own artifacts with the matching action script: `validate-route.ps1` and `validate-terminology.ps1` (direct), `validate-learning.ps1` / `validate-work.ps1` / `validate-decision.ps1` / `validate-atomic.ps1` / `validate-reviewbank.ps1` / `validate-queue.ps1` (record), `validate-jobnote.ps1` (analyze), `validate-snapshot.ps1` (study snapshots), `check-draft.py` (study drafts). `shared/assets/validation-registry.json` is the authority for each action's targets, kinds, write surface, and runtime dependencies; standalone validators are registered there separately. A change must declare its operation: an update or creation target must exist, a delete must be absent, a rename needs its old path, and an atomic delete needs its old identity; a missing path is never guessed as a delete. Every declared target must be covered by a selected kind, and an explicit action path must stay inside that action's write surface. A multi-artifact write batch runs `validate-change.ps1` once with the affected kinds and paths, `-Action`, or a mixed `-ChangeSet`. If its scope cannot be computed, it fails explicitly rather than silently running a full audit. `validate-vault.ps1 -Strict` remains the separate full composed audit and is available only from `direct-tech-learning`.
 - Compare final hashes and confirm unrelated notes did not change.
 
 ## Study runtime state

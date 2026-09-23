@@ -51,103 +51,64 @@ function Test-WikiTarget {
     return $false
 }
 
-function Get-DailyReviewIssues {
-    param(
-        [Parameter(Mandatory = $true)][string]$Content,
-        [Parameter(Mandatory = $true)][string]$BaseName
-    )
-    $issues = @()
-    if ($BaseName -notmatch '^(\d{4}-\d{2}-\d{2}) 学习回顾$') {
-        $issues += 'filename must be YYYY-MM-DD 学习回顾.md'
-    }
-    foreach ($heading in @('## 今日学习过程', '## 今日形成的理解', '## 今日知识沉淀', '## 今日遇到的问题')) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($heading))\s*$") {
-            $issues += "missing heading: $heading"
-        }
-    }
-    if ($Content -match '(?m)^## (仍待确认|下一次复习)\s*$') {
-        $issues += 'legacy ingestion or review-schedule heading'
-    }
-    return $issues
-}
-
-function Test-DailyReviewSourceSection {
+function Test-NoteBodyNonEmpty {
     param([Parameter(Mandatory = $true)][string]$Content)
-    return ($Content -match '(?m)^## 实际使用的学习资料\s*$')
+    $body = $Content
+    $frontmatter = [regex]::Match($Content, '(?ms)\A---\s*\r?\n.*?\r?\n---\s*\r?\n')
+    if ($frontmatter.Success) { $body = $Content.Substring($frontmatter.Length) }
+    foreach ($line in @($body -split '\r?\n')) {
+        $trimmed = $line.Trim()
+        if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
+        return $true
+    }
+    return $false
 }
 
-function Get-DailyTemplateIssues {
-    param([Parameter(Mandatory = $true)][string]$Content)
-    $issues = @()
-    foreach ($heading in @('## 今日学习过程', '## 实际使用的学习资料', '## 今日形成的理解', '## 今日知识沉淀', '## 今日遇到的问题')) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($heading))\s*$") {
-            $issues += "missing heading: $heading"
-        }
-    }
-    foreach ($field in @('主学习源代码', '实际访问 URL，或实体教材精确版次', '课程/文档章节与小节', '实际起点 → 停留位置', '可访问事实', '缺口补充源', 'Agent 兜底')) {
-        if ($Content -notmatch [regex]::Escape($field)) {
-            $issues += "missing learning-source field: $field"
-        }
-    }
-    return $issues
+$script:LogKindTypes = @{
+    'learning' = 'learning-log'
+    'work'     = 'work-log'
+    'decision' = 'decision-log'
 }
 
-function Get-WeeklyNoteIssues {
+function Get-LogNoteIssues {
     param(
         [Parameter(Mandatory = $true)][string]$Content,
         [Parameter(Mandatory = $true)][string]$BaseName,
-        [Parameter(Mandatory = $true)][string[]]$Properties,
-        [Parameter(Mandatory = $true)][string[]]$Headings,
-        [Parameter(Mandatory = $true)][string[]]$StatusEnum
+        [Parameter(Mandatory = $true)][string]$Kind
     )
     $issues = @()
-    if ($BaseName -notmatch '^\d{4}-W\d{2}$') {
-        $issues += 'filename must be YYYY-Www.md'
+    $expectedType = $script:LogKindTypes[$Kind]
+    $dateMatch = [regex]::Match($BaseName, '^(?<date>\d{4}-\d{2}-\d{2})-(?<topic>.+)$')
+    if (-not $dateMatch.Success -or -not $dateMatch.Groups['topic'].Value.Trim()) {
+        $issues += 'filename must be YYYY-MM-DD-<topic>.md'
     }
-    foreach ($property in $Properties) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($property))\s*:") {
-            $issues += "missing property: $property"
+    $type = Read-FrontmatterScalar -Content $Content -Key 'type'
+    if ($type -ne $expectedType) {
+        $issues += "type must be $expectedType (got '$type')"
+    }
+    $date = Read-FrontmatterScalar -Content $Content -Key 'date'
+    if ($date -notmatch '^\d{4}-\d{2}-\d{2}$') {
+        $issues += 'missing or invalid date: must be YYYY-MM-DD'
+    }
+    elseif ($dateMatch.Success -and $date -ne $dateMatch.Groups['date'].Value) {
+        $issues += "date '$date' does not match the filename date '$($dateMatch.Groups['date'].Value)'"
+    }
+    if ($Kind -eq 'decision') {
+        if ($Content -match '(?m)^duration_minutes\s*:') {
+            $issues += 'decision log must not declare duration_minutes'
         }
     }
-    if ($Content -match '(?m)^status:\s*(.+?)\s*$') {
-        $weeklyStatus = $Matches[1].Trim()
-        if ($weeklyStatus -notin @($StatusEnum)) {
-            $issues += "invalid status: $weeklyStatus"
+    else {
+        $duration = Read-FrontmatterScalar -Content $Content -Key 'duration_minutes'
+        if (-not $duration) {
+            $issues += 'missing property: duration_minutes'
+        }
+        elseif ($duration -ne '时间缺失' -and $duration -notmatch '^[1-9][0-9]*$') {
+            $issues += "duration_minutes must be a positive integer or 时间缺失 (got '$duration')"
         }
     }
-    foreach ($heading in $Headings) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($heading))\s*$") {
-            $issues += "missing heading: $heading"
-        }
-    }
-    # 日志只做字面记录：不绑定计划、配额、排期或预期产物，因此不校验任何计划字段。
-    if ($Content -match '(?m)^(focus|focus_status)\s*:' -or
-        $Content -match '(?m)^## 本周(唯一)?重点\s*$' -or
-        $Content -match '(?m)^## (问题与待验证|里程碑进度)\s*$') {
-        $issues += 'legacy weekly progress state'
-    }
-    return $issues
-}
-
-function Get-WeeklyTemplateIssues {
-    param(
-        [Parameter(Mandatory = $true)][string]$Content,
-        [Parameter(Mandatory = $true)][string[]]$Properties,
-        [Parameter(Mandatory = $true)][string[]]$Headings
-    )
-    $issues = @()
-    foreach ($heading in $Headings) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($heading))\s*$") {
-            $issues += "missing heading: $heading"
-        }
-    }
-    foreach ($property in $Properties) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($property))\s*:") {
-            $issues += "missing property: $property"
-        }
-    }
-    if ($Content -match '(?m)^## (问题与待验证|里程碑进度)\s*$') {
-        $issues += 'legacy derived-progress heading'
+    if (-not (Test-NoteBodyNonEmpty -Content $Content)) {
+        $issues += 'note body must not be empty'
     }
     return $issues
 }
@@ -203,17 +164,9 @@ function Get-AtomicNoteIssues {
 function Get-AtomicGranularityFindings {
     param([Parameter(Mandatory = $true)][string]$Content)
     $findings = @()
-    $body = $Content
-    $frontmatter = [regex]::Match($Content, '(?ms)\A---\s*\r?\n.*?\r?\n---\s*\r?\n')
-    if ($frontmatter.Success) { $body = $Content.Substring($frontmatter.Length) }
-    $hasBody = $false
-    foreach ($line in @($body -split '\r?\n')) {
-        $trimmed = $line.Trim()
-        if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
-        $hasBody = $true
-        break
+    if (-not (Test-NoteBodyNonEmpty -Content $Content)) {
+        $findings += 'note body must not be empty'
     }
-    if (-not $hasBody) { $findings += 'note body must not be empty' }
     return $findings
 }
 

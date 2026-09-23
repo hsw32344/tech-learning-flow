@@ -28,8 +28,9 @@
       "15-自由笔记",
       "20-学习主线",
       "25-资源区",
-      "30-学习日志\\每周",
-      "30-学习日志\\学习回顾",
+      "30-日志\\学习",
+      "30-日志\\工作",
+      "30-日志\\决定",
       "40-原子知识",
       "50-主题地图",
       "60-复习",
@@ -41,7 +42,8 @@
     "forbidden_legacy": [
       "04-项目与来源",
       "05-里程碑",
-      "06-问题看板"
+      "06-问题看板",
+      "30-学习日志"
     ],
     "markdown_files": [
       "00-首页.md",
@@ -50,7 +52,7 @@
     ],
     "markdown_roots": [
       "20-学习主线",
-      "30-学习日志",
+      "30-日志",
       "40-原子知识",
       "50-主题地图",
       "60-复习",
@@ -59,7 +61,7 @@
     ],
     "note_roots": [
       "20-学习主线",
-      "30-学习日志",
+      "30-日志",
       "40-原子知识",
       "50-主题地图",
       "60-复习",
@@ -75,13 +77,11 @@
         "current_position",
         "learning_mainline",
         "terminology_standard",
-        "current_week",
-        "latest_review"
+        "latest_log"
       ],
       "headings": [
         "## 当前学习主线",
-        "## 最近周记录",
-        "## 最近学习",
+        "## 最近记录",
         "## 主题地图",
         "## 复习",
         "## 术语规范",
@@ -114,39 +114,13 @@
       ]
     }
   },
-  "weekly": {
-    "properties": [
-      "type",
-      "week",
-      "start",
-      "end",
-      "study_days",
-      "total_minutes",
-      "stage",
-      "stage_directions",
-      "status"
-    ],
-    "headings": [
-      "## 阶段方向",
-      "## 任务流转",
-      "## 实际学习记录",
-      "## 已收敛知识",
-      "## 复习证据",
-      "## 能力证据",
-      "## 整理结论",
-      "## 前进方向"
-    ],
-    "status_enum": [
-      "进行中",
-      "已结束"
-    ]
-  },
   "note_types": [
     "home",
     "terminology-standard",
     "learning-mainline",
-    "weekly-learning-review",
-    "学习回顾",
+    "learning-log",
+    "work-log",
+    "decision-log",
     "原子知识点",
     "复习题",
     "topic-map",

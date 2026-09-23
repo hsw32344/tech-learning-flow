@@ -23,13 +23,13 @@ Maintain the complete source-backed task route. Do not execute study or review.
 - Read the sections of `references/tech-vault-schema.md` needed for the write (mainline, source declarations, homepage mirrors); it is never a mandatory full preload.
 - Read `references/curriculum-sources.md` when selecting or changing a task package's primary source.
 - Read `10-术语规范.md` when stage or mainline terminology rows change; read `99-附件/FCC学习操作范式.md` for `FCC-*` sources.
-- Read the full mainline only when reordering stages/units or adding packages; recent weekly/daily logs only when factual history affects task selection; `70-复习队列.md` only for an explicit practice/review request.
+- Read the full mainline only when reordering stages/units or adding packages; recent event logs only when factual history affects task selection; `70-复习队列.md` only for an explicit practice/review request.
 
 ## Allowed writes
 
 - `20-学习主线/` (its `00-总览.md`, `20-任务包注册表.md`, the relevant stage file, and `资料来源注册表.md` when material identities change), the matching `00-首页.md` route mirrors, and stage/mainline-node terminology rows.
 - Exactly one machine-parseable `primary_source` line with a reproducible anchor per unit, plus at most one bounded `gap_source`; never assemble a hidden Agent-authored curriculum from fragments.
-- Preserve weekly/daily facts and homepage `current_week`/`latest_review`; never write review results, learner activity, or generated teaching into the route.
+- Preserve event logs and homepage `latest_log`; never write review results, learner activity, or generated teaching into the route.
 
 ## Handoff
 

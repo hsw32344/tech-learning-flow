@@ -40,7 +40,7 @@ function New-ChangeFailure {
 }
 
 $Vault = Resolve-BoundVault -Vault $Vault
-# Accept both `-Kinds daily,weekly` (PowerShell array) and one literal argument
+# Accept both `-Kinds learning,work,decision` (PowerShell array) and one literal argument
 # from pwsh -File, so callers cannot silently lose kinds, paths, or change entries.
 $Kinds = @($Kinds | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $Paths = @(@($Paths) + @($AdditionalPaths) | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
