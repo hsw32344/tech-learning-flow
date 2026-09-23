@@ -226,29 +226,21 @@ Record what the learner did, predicted, implemented, ran, observed, corrected, e
 
 ## Atomic knowledge
 
-Path: `40-原子知识/<技术>/<规范核心对象或代码写法> - <独立问题>.md`.
+Path: `40-原子知识/<技术>/<规范核心对象或代码写法> - <知识主题或操作>.md`.
 
-Required headings:
+Every atomic note must declare a unique `atomic_id` and exactly one `term_id`. `term_id` must resolve to a registered terminology row. A note covers one retrievable topic with concrete objects, their relationships, and any observable result; examples, principles, and boundaries appear where they support understanding, not as fixed headings.
 
-1. `## 要解决的问题`
-2. `## 结论`
-3. `## 为什么`
-4. `## 最小例子`
-5. `## 边界与易错点`
-6. `## 相关知识`
+The body uses a natural layout: headings are chosen for the content, and a conceptual note may exist without a runnable example. Use structural checks only for mechanical defects: a non-empty body, non-empty written code blocks, and resolvable identity metadata. Do not make a semantic claim that an explanation is correct merely because its structure validates. Do not add mastery state.
 
-Every atomic note must declare a unique `atomic_id` and exactly one `term_id`. `term_id` must resolve to a registered terminology row. Every note has one core term, one independently answerable question, one primary causal chain, one main conclusion, one independently runnable or observable minimum example, and a failure/boundary explanation. A boundary may contain several cases only when it does not introduce a second independent controlling mechanism.
-
-Use structural checks only in the validator: required metadata, exactly one question-section heading, required sections, and a non-empty minimum-example section. Do not make a semantic claim that a causal explanation is correct merely because its structure validates. Do not add mastery state.
-
-Split a note when it needs two independently answerable questions, two independently valid examples, or two separate primary controlling rules. Keep a comparison in one note only when the comparison itself is the single question and causal chain.
+Split a note when it serves two separately retrievable topics or needs two independently valid examples.
 
 ## Review banks
 
 Path: `60-复习/<规范核心对象或代码写法> - <测试目标>复习.md`.
 
-- When an atomic note's review material or results are recorded, exactly one review bank with `review_kind: atomic-mirror` and `primary_atomic: <atomic_id>` must claim it. Ordinary study may create an atomic before its mirror exists: the missing mirror is a warning, and it becomes an error only for atoms inside an explicitly recorded review scope. An atomic mirror must use `related_atomics: []`; it tests the same atomic question and is not a substitute for a broad synthesis prompt.
-- Additional review banks may be more numerous than atomic notes, but `review_kind` must be one of `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`. Each extra bank must declare at least one `related_atomics` value or one `task_units` value.
+- `atomic-mirror` banks are optional. When a note's review material or results are organized as a mirror bank, exactly one bank with `review_kind: atomic-mirror` and `primary_atomic: <atomic_id>` claims it; it uses `related_atomics: []` and tests the same atomic question. Never create a bank only to hold one result.
+- An explicit review without a bank records its facts in the daily learning review and the weekly section, naming the tested `atomic_id` or task unit; the queue may cite that factual record instead of a bank.
+- Additional review banks may use `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`, and must declare at least one `related_atomics` or `task_units` value. Extra banks never require a mirror for their references.
 - An atomic mirror may declare only one `primary_atomic`; one atomic ID cannot be claimed by two mirrors. Every declared atomic reference must resolve to an existing atomic note.
 - Prefer three verification surfaces: causal prediction, fault localization, and changed-context transfer.
 - Put only actual attempts and outcomes under `## 复习记录`.

@@ -10,8 +10,9 @@ Review does not expand into a new curriculum block, write evidence, update the q
 
 Path: `60-复习/<规范核心对象或代码写法> - <测试目标>复习.md`.
 
-- When an atomic note's review material or results are recorded, exactly one review bank with `review_kind: atomic-mirror` and `primary_atomic: <atomic_id>` must claim it. Ordinary study may create an atomic before its mirror exists: the missing mirror is a warning, and it becomes an error only for atoms inside an explicitly recorded review scope. An atomic mirror must use `related_atomics: []`; it tests the same atomic question and is not a substitute for a broad synthesis prompt.
-- Additional review banks may be more numerous than atomic notes, but `review_kind` must be one of `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`. Each extra bank must declare at least one `related_atomics` value or one `task_units` value.
+- `atomic-mirror` banks are optional. When a note's review material or results are organized as a mirror bank, exactly one bank with `review_kind: atomic-mirror` and `primary_atomic: <atomic_id>` claims it; it uses `related_atomics: []` and tests the same atomic question. Never create a bank only to hold one result.
+- An explicit review without a bank records its facts in the daily learning review and the weekly section, naming the tested `atomic_id` or task unit; the queue may cite that factual record instead of a bank.
+- Additional review banks may use `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`, and must declare at least one `related_atomics` or `task_units` value. Extra banks never require a mirror for their references.
 - An atomic mirror may declare only one `primary_atomic`; one atomic ID cannot be claimed by two mirrors. Every declared atomic reference must resolve to an existing atomic note.
 - Prefer three verification surfaces: causal prediction, fault localization, and changed-context transfer.
 - Put only actual attempts and outcomes under `## 复习记录`.

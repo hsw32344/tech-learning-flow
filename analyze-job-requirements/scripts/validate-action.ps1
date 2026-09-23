@@ -70,9 +70,7 @@ if ($explicitTargets) {
     }
 }
 
-$enforceReviewScope = ($explicitTargets -and @($definition.kinds) -contains 'reviewbank')
-$result = Invoke-ScopedChangeValidation -Vault $Vault -Kinds @($definition.kinds) -Changes $changes `
-    -EnforceReviewScope:$enforceReviewScope
+$result = Invoke-ScopedChangeValidation -Vault $Vault -Kinds @($definition.kinds) -Changes $changes
 Add-Member -InputObject $result -NotePropertyName 'action' -NotePropertyValue $Action -Force
 Add-Member -InputObject $result -NotePropertyName 'skills' -NotePropertyValue @($definition.skills) -Force
 $result | ConvertTo-Json -Depth 20

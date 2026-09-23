@@ -377,8 +377,7 @@ function Get-ScopeKindDiagnostics {
         [string[]]$RelatedTargets,
         $Index,
         $Schema,
-        [Parameter(Mandatory = $true)][string]$VaultRoot,
-        [switch]$EnforceReviewScope
+        [Parameter(Mandatory = $true)][string]$VaultRoot
     )
     $diags = @()
     $existing = @($RelatedTargets | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
@@ -481,7 +480,6 @@ function Get-ScopeKindDiagnostics {
         }
         'reviewbank' {
             $allAtomicIds = @($Index.atomic_records | ForEach-Object { $_.atomic_id } | Where-Object { $_ })
-            $scopeAtoms = @()
             $changedClaims = @()
             foreach ($path in $existing) {
                 $content = Get-ScopeContent -Path $path
@@ -499,8 +497,6 @@ function Get-ScopeKindDiagnostics {
                 if ($analysis.review_kind -eq 'atomic-mirror' -and $analysis.primary_atomic) {
                     $changedClaims += [pscustomobject]@{ path = $path; atomic_id = $analysis.primary_atomic }
                 }
-                if ($analysis.primary_atomic) { $scopeAtoms += $analysis.primary_atomic }
-                $scopeAtoms += @($analysis.related_atomics)
             }
             $claims = @($Index.review_records |
                     Where-Object { $_.review_kind -eq 'atomic-mirror' -and $_.primary_atomic } |
@@ -512,20 +508,6 @@ function Get-ScopeKindDiagnostics {
                 if (@($paths | Where-Object { $existing -contains $_ }).Count -gt 0) {
                     $diags += New-ScopeDiagnostic -Field 'duplicate_atomic_mirrors' -Item ([pscustomobject]@{ atomic_id = $group.Name; paths = $paths })
                 }
-            }
-            foreach ($atom in @($scopeAtoms | Select-Object -Unique)) {
-                if (@($claims | Where-Object { $_.atomic_id -eq $atom }).Count -eq 0) {
-                    $diagnostic = New-ScopeDiagnostic -Field 'atomic_mirror_gaps' -Item $atom
-                    if ($EnforceReviewScope) {
-                        $diagnostic.severity = 'error'
-                        $diagnostic.message = 'atomic in the recorded review scope has no atomic-mirror bank: ' + $atom
-                    }
-                    $diags += $diagnostic
-                }
-            }
-            foreach ($atom in @($Index.atomic_records | ForEach-Object { $_.atomic_id } | Where-Object { $_ } | Select-Object -Unique)) {
-                if ($scopeAtoms -contains $atom -or @($claims | Where-Object { $_.atomic_id -eq $atom }).Count -gt 0) { continue }
-                $diags += New-ScopeDiagnostic -Field 'atomic_mirror_gaps' -Item $atom
             }
         }
         'queue' {
@@ -606,8 +588,7 @@ function Invoke-ScopedChangeValidation {
     param(
         [Parameter(Mandatory = $true)][string]$Vault,
         [Parameter(Mandatory = $true)][string[]]$Kinds,
-        [object[]]$Changes = @(),
-        [switch]$EnforceReviewScope
+        [object[]]$Changes = @()
     )
     $kindRoots = Get-ValidationKindRoots -RegistryPath (Get-ValidationRegistryPath -ScriptRoot $PSScriptRoot)
     if ($kindRoots.Count -eq 0) {
@@ -759,7 +740,7 @@ function Invoke-ScopedChangeValidation {
     $index = Get-ScopeIndex -VaultRoot $Vault -Schema $schema -Kinds $Kinds -NeedsReviewRecords:($identityChecks.Count -gt 0)
     $allDiagnostics = @(Get-ScopeCommonDiagnostics -Index $index -Schema $schema -VaultRoot $Vault)
     foreach ($kind in $Kinds) {
-        $allDiagnostics += @(Get-ScopeKindDiagnostics -Kind $kind -RelatedTargets $kindTargets[$kind] -Index $index -Schema $schema -VaultRoot $Vault -EnforceReviewScope:$EnforceReviewScope)
+        $allDiagnostics += @(Get-ScopeKindDiagnostics -Kind $kind -RelatedTargets $kindTargets[$kind] -Index $index -Schema $schema -VaultRoot $Vault)
     }
     foreach ($identityCheck in $identityChecks) {
         foreach ($record in $index.review_records) {

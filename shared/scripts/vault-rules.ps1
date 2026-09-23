@@ -172,7 +172,7 @@ function Get-ReviewQueueIssues {
 function Get-ReviewTemplateIssues {
     param([Parameter(Mandatory = $true)][string]$Content)
     $issues = @()
-    foreach ($heading in @('## 因果预测', '## 修错定位', '## 换情境迁移', '## 复习记录')) {
+    foreach ($heading in @('## 题库类型与关联', '## 复习记录')) {
         if ($Content -notmatch "(?m)^$([regex]::Escape($heading))\s*$") {
             $issues += "missing heading: $heading"
         }
@@ -181,9 +181,6 @@ function Get-ReviewTemplateIssues {
         if ($Content -notmatch "(?m)^$([regex]::Escape($property))\s*:") {
             $issues += "missing property: $property"
         }
-    }
-    if ($Content -notmatch '(?m)^## 题库类型与关联\s*$') {
-        $issues += 'missing heading: ## 题库类型与关联'
     }
     if ($Content -match '(?m)^## 建议复习日期\s*$') {
         $issues += 'review dates belong in the derived queue'
@@ -194,28 +191,10 @@ function Get-ReviewTemplateIssues {
 function Get-AtomicNoteIssues {
     param([Parameter(Mandatory = $true)][string]$Content)
     $issues = @()
-    foreach ($heading in @('## 要解决的问题', '## 结论', '## 为什么', '## 最小例子', '## 边界与易错点', '## 相关知识')) {
-        if ($Content -notmatch "(?m)^$([regex]::Escape($heading))\s*$") {
-            $issues += "missing heading: $heading"
-        }
-    }
-    if ($Content -match '(?m)^## (一句话理解|核心说明|示例与结果|易错点)\s*$') {
-        $issues += 'legacy continuous-note heading'
-    }
-    $minimumExampleMatch = [regex]::Match(
-        $Content,
-        '(?ms)^## 最小例子\s*\r?\n(?<section>.*?)(?=^## |\z)'
-    )
-    if ($minimumExampleMatch.Success) {
-        $pythonBlocks = [regex]::Matches(
-            $minimumExampleMatch.Groups['section'].Value,
-            '(?ms)^```python\s*\r?\n(?<code>.*?)^```\s*$'
-        )
-        for ($blockIndex = 0; $blockIndex -lt $pythonBlocks.Count; $blockIndex++) {
-            $code = $pythonBlocks[$blockIndex].Groups['code'].Value
-            if (-not $code.Trim()) {
-                $issues += "Python minimum example block $($blockIndex + 1) is empty"
-            }
+    $codeBlocks = [regex]::Matches($Content, '(?ms)^```[^\r\n]*\r?\n(?<code>.*?)^```\s*$')
+    for ($blockIndex = 0; $blockIndex -lt $codeBlocks.Count; $blockIndex++) {
+        if (-not $codeBlocks[$blockIndex].Groups['code'].Value.Trim()) {
+            $issues += "empty code block $($blockIndex + 1)"
         }
     }
     return $issues
@@ -224,21 +203,17 @@ function Get-AtomicNoteIssues {
 function Get-AtomicGranularityFindings {
     param([Parameter(Mandatory = $true)][string]$Content)
     $findings = @()
-    $questionHeadings = @([regex]::Matches($Content, '(?m)^## 要解决的问题\s*$'))
-    if ($questionHeadings.Count -ne 1) {
-        $findings += 'must contain exactly one question section'
+    $body = $Content
+    $frontmatter = [regex]::Match($Content, '(?ms)\A---\s*\r?\n.*?\r?\n---\s*\r?\n')
+    if ($frontmatter.Success) { $body = $Content.Substring($frontmatter.Length) }
+    $hasBody = $false
+    foreach ($line in @($body -split '\r?\n')) {
+        $trimmed = $line.Trim()
+        if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
+        $hasBody = $true
+        break
     }
-    $questionSection = [regex]::Match($Content, '(?ms)^## 要解决的问题\s*\r?\n(?<section>.*?)(?=^## |\z)')
-    if (-not $questionSection.Success -or -not $questionSection.Groups['section'].Value.Trim()) {
-        $findings += 'question section must be non-empty'
-    }
-    $minimumExampleMatch = [regex]::Match($Content, '(?ms)^## 最小例子\s*\r?\n(?<section>.*?)(?=^## |\z)')
-    if (-not $minimumExampleMatch.Success) {
-        $findings += 'minimum example section must be non-empty'
-    }
-    elseif (-not $minimumExampleMatch.Groups['section'].Value.Trim()) {
-        $findings += 'minimum example section must be non-empty'
-    }
+    if (-not $hasBody) { $findings += 'note body must not be empty' }
     return $findings
 }
 

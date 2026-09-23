@@ -514,11 +514,7 @@ foreach ($file in @(Get-ChildItem -File -Filter '*.md' -LiteralPath $reviewBankR
     }
     if ($issues.Count -gt 0) { $invalidReviewBanks += [pscustomobject]@{ path = $file.FullName; issues = $issues } }
 }
-$atomicMirrorGaps = @(
-    foreach ($atomicId in $atomicIds) {
-        if (@($mirrorClaims | Where-Object { $_.atomic_id -eq $atomicId }).Count -eq 0) { $atomicId }
-    }
-)
+$atomicMirrorGaps = @()
 $duplicateAtomicMirrors = @(
     $mirrorClaims | Group-Object atomic_id | Where-Object { $_.Count -gt 1 } | ForEach-Object { [pscustomobject]@{ atomic_id = $_.Name; paths = @($_.Group.path) } }
 )

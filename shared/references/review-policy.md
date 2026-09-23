@@ -11,8 +11,9 @@ Use this reference when reading or updating `70-复习队列.md`.
 
 ## Bank taxonomy and mirror coverage
 
-- `atomic-mirror` is the required one-to-one review surface once an atomic's review material or results are recorded. It has `related_atomics: []` and tests that atomic note's own question. An atomic created by ordinary study may exist without a mirror; the missing mirror is reported as a warning until an explicit review scope is recorded, and only atoms inside that recorded scope become hard errors.
-- Extra banks are permitted only as `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`. They must name one or more `related_atomics` or `task_units`.
+- `atomic-mirror` is optional. When one exists it has `related_atomics: []` and tests that atomic note's own question; exactly one mirror may claim an atomic ID.
+- An explicit review of an atomic without a mirror bank records its facts in the daily and weekly record, naming the tested atomic; never create a bank only to hold a result.
+- Extra banks are permitted only as `boundary-comparison`, `error-diagnosis`, `integration-transfer`, `task-performance`, or `retention`. They must name one or more `related_atomics` or `task_units`, and never require a mirror for the referenced atoms.
 - An extra bank supplements, never replaces, an atomic mirror. A prompt bank is not an attempt record and does not activate the queue.
 - Keep actual learner attempts only under the review-record heading; generated questions and expected checks remain blank until the learner acts.
 

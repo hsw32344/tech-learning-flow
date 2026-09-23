@@ -17,7 +17,7 @@ Run practice and assessment only after the user explicitly chooses this mode.
 - Vault binding: explicit path or the tracked pointer; if it is missing or uninitialized, ask the user to initialize it with `direct-tech-learning` or `study-tech-learning`. This mode never writes to the Vault.
 - Target priority: explicit unit/topic -> explicitly selected review bank -> active queue.
 - For an `atomic-mirror` bank start from its declared `primary_atomic`; for an extra bank use its declared `review_kind` plus `related_atomics`/`task_units`.
-- An atomic note without a mirror bank may still be tested; `record-tech-learning` creates the mirror when the result is recorded.
+- An atomic note without a mirror bank may still be tested; its result is recorded as a fact without requiring a bank.
 - For a task-package review, the snapshot's covered-slice table and structured mechanisms show what was taught; snapshot content is coverage, not ability, readiness, or evidence.
 
 ## Minimal reads

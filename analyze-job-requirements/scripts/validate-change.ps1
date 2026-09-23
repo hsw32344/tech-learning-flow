@@ -139,7 +139,5 @@ if ($null -ne $definition -and $explicitTargets) {
                 }) -Diagnostics $diagnostics)
     }
 }
-$enforceReviewScope = ($explicitTargets -and $Kinds -contains 'reviewbank')
-$scopedResult = Invoke-ScopedChangeValidation -Vault $Vault -Kinds $Kinds -Changes $changes `
-    -EnforceReviewScope:$enforceReviewScope
+$scopedResult = Invoke-ScopedChangeValidation -Vault $Vault -Kinds $Kinds -Changes $changes
 Write-ChangeResult -Result $scopedResult
